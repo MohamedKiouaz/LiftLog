@@ -9,11 +9,13 @@ import { useDebouncedCallback } from 'use-debounce';
 
 export default function ExerciseFilterer(props: {
   onFilteredExerciseIdsChange: (ids: string[]) => void;
-  onSuggestedNewExercise: (
+  onSuggestedNewExercise?: (
     exerciseDescriptor: ExerciseDescriptor | 'NONE',
   ) => void;
+  exercises?: Record<string, ExerciseDescriptor>;
 }) {
-  const exercises = useAppSelector(selectExercises);
+  const storedExercises = useAppSelector(selectExercises);
+  const exercises = props.exercises ?? storedExercises;
   const { onFilteredExerciseIdsChange, onSuggestedNewExercise } = props;
   const [muscleFilters, setMuscleFilters] = useState([] as string[]);
   const [searchText, setSearchText] = useState('');
@@ -53,7 +55,7 @@ export default function ExerciseFilterer(props: {
       .toArray();
     onFilteredExerciseIdsChange(newFilteredExercises);
     if (!hasExactMatch && trimmedSearchText) {
-      onSuggestedNewExercise({
+      onSuggestedNewExercise?.({
         name: trimmed,
         category: '',
         equipment: null,
@@ -64,7 +66,7 @@ export default function ExerciseFilterer(props: {
         muscles: muscleFilters,
       });
     } else {
-      onSuggestedNewExercise('NONE');
+      onSuggestedNewExercise?.('NONE');
     }
   }, 100);
 
