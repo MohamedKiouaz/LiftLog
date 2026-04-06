@@ -31,6 +31,7 @@ message ExerciseBlueprintDaoV2 {
   string name = 1;
   string notes = 8;
   string link = 9;
+  repeated string muscles = 17;
   ExerciseType type = 10;
 
   // Weighted

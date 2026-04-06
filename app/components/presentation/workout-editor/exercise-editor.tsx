@@ -5,6 +5,7 @@ import Button from '@/components/presentation/foundation/gesture-wrappers/button
 import LabelledForm from '@/components/presentation/foundation/labelled-form';
 import LabelledFormRow from '@/components/presentation/foundation/labelled-form-row';
 import ListSwitch from '@/components/presentation/foundation/list-switch';
+import MuscleGroupPicker from '@/components/presentation/workout-editor/muscle-group-picker';
 import RestEditorGroup from '@/components/presentation/workout-editor/rest-editor-group';
 import SelectButton from '@/components/presentation/foundation/select-button';
 import { spacing, useAppTheme } from '@/hooks/useAppTheme';
@@ -339,7 +340,11 @@ function CardioExerciseEditor({
   const { colors } = useAppTheme();
   return (
     <>
-      <SharedFieldsEditor exercise={exercise} updateExercise={updateExercise} />
+      <SharedFieldsEditor
+        exercise={exercise}
+        updateExercise={updateExercise}
+        showMuscleGroups={false}
+      />
       {exercise.sets.map((set, setIndex) => (
         <CardioSetEditor
           set={set}
@@ -453,11 +458,13 @@ function CardioSetEditor(props: {
 function SharedFieldsEditor({
   exercise,
   updateExercise,
+  showMuscleGroups = true,
 }: {
   exercise: ExerciseBlueprint;
   updateExercise: (
     ex: Partial<CardioExerciseBlueprint | WeightedExerciseBlueprint>,
   ) => void;
+  showMuscleGroups?: boolean;
 }) {
   const { t } = useTranslate();
   return (
@@ -485,6 +492,17 @@ function SharedFieldsEditor({
           onChangeText={(link) => updateExercise({ link })}
         />
       </LabelledFormRow>
+      {showMuscleGroups && (
+        <LabelledFormRow
+          label={t('exercise.muscle_groups.label')}
+          icon="exerciseFill"
+        >
+          <MuscleGroupPicker
+            muscles={exercise.muscles ?? []}
+            onChange={(muscles) => updateExercise({ muscles })}
+          />
+        </LabelledFormRow>
+      )}
     </>
   );
 }

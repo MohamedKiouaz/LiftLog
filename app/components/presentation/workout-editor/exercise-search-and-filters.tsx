@@ -6,6 +6,10 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { Searchbar, Card } from 'react-native-paper';
 import IconButton from '@/components/presentation/foundation/gesture-wrappers/icon-button';
+import {
+  getMuscleGroupTranslationKey,
+  humanizeMuscleGroupId,
+} from '@/models/muscle-groups';
 
 export default function ExerciseSearchAndFilters({
   searchText,
@@ -21,7 +25,15 @@ export default function ExerciseSearchAndFilters({
   const { t } = useTranslate();
   const [filtersExpanded, setFiltersExpanded] = useState(false);
   const selectedFiltersSubtitle =
-    muscleFilters.join(', ') || 'No filters applied';
+    muscleFilters.length
+      ? muscleFilters
+          .map((id) =>
+            t(getMuscleGroupTranslationKey(id) as never, {
+              defaultValue: humanizeMuscleGroupId(id),
+            }),
+          )
+          .join(', ')
+      : 'No filters applied';
 
   return (
     <View style={{ gap: spacing[2] }}>

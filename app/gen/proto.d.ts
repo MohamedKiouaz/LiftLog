@@ -1171,6 +1171,9 @@ export namespace LiftLog {
                     /** ExerciseBlueprintDaoV2 link */
                     link?: (string|null);
 
+                    /** ExerciseBlueprintDaoV2 muscles */
+                    muscles?: (string[]|null);
+
                     /** ExerciseBlueprintDaoV2 type */
                     type?: (LiftLog.Ui.Models.SessionBlueprintDao.ExerciseType|null);
 
@@ -1225,6 +1228,9 @@ export namespace LiftLog {
 
                     /** ExerciseBlueprintDaoV2 link. */
                     public link: string;
+
+                    /** ExerciseBlueprintDaoV2 muscles. */
+                    public muscles: string[];
 
                     /** ExerciseBlueprintDaoV2 type. */
                     public type: LiftLog.Ui.Models.SessionBlueprintDao.ExerciseType;

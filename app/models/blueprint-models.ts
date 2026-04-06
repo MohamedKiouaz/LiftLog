@@ -390,6 +390,7 @@ export interface CardioExerciseBlueprintPOJO {
   sets: CardioExerciseSetBlueprintPOJO[];
   notes: string;
   link: string;
+  muscles?: string[];
 }
 export class CardioExerciseBlueprint {
   constructor(
@@ -397,6 +398,7 @@ export class CardioExerciseBlueprint {
     readonly sets: CardioExerciseSetBlueprint[],
     readonly notes: string,
     readonly link: string,
+    readonly muscles: string[] = [],
   ) {
     if (!sets.length) {
       throw new Error('Must have at least one set in cardio exercise');
@@ -409,6 +411,7 @@ export class CardioExerciseBlueprint {
       [CardioExerciseSetBlueprint.empty()],
       '',
       '',
+      [],
     );
   }
 
@@ -420,6 +423,7 @@ export class CardioExerciseBlueprint {
       pojo.sets.map((x) => CardioExerciseSetBlueprint.fromPOJO(x)),
       pojo.notes,
       pojo.link,
+      pojo.muscles ?? [],
     );
   }
 
@@ -441,7 +445,11 @@ export class CardioExerciseBlueprint {
       this.sets.length === other.sets.length &&
       this.sets.every((set, index) => set.equals(other.sets[index])) &&
       this.notes === other.notes &&
-      this.link === other.link
+      this.link === other.link &&
+      this.muscles.length === (other.muscles?.length ?? 0) &&
+      this.muscles.every(
+        (muscle, index) => muscle === (other.muscles ?? [])[index],
+      )
     );
   }
 
@@ -452,6 +460,7 @@ export class CardioExerciseBlueprint {
       sets: this.sets.map((x) => x.toPOJO()),
       notes: this.notes,
       link: this.link,
+      muscles: this.muscles,
     };
   }
 
@@ -461,6 +470,7 @@ export class CardioExerciseBlueprint {
       name: this.name,
       notes: this.notes,
       link: this.link,
+      muscles: this.muscles,
       type: LiftLog.Ui.Models.SessionBlueprintDao.ExerciseType.CARDIO,
       cardioSets: sets,
       deprecatedCardioTarget: null,
@@ -484,6 +494,7 @@ export class CardioExerciseBlueprint {
         : sets,
       dao.notes ?? '',
       dao.link ?? '',
+      dao.muscles ?? [],
     );
   }
 
@@ -494,6 +505,7 @@ export class CardioExerciseBlueprint {
         this.sets,
       other.notes ?? this.notes,
       other.link ?? this.link,
+      other.muscles ?? this.muscles,
     );
   }
 }
@@ -508,6 +520,7 @@ export interface WeightedExerciseBlueprintPOJO {
   supersetWithNext: boolean;
   notes: string;
   link: string;
+  muscles?: string[];
 }
 
 export class WeightedExerciseBlueprint {
@@ -519,6 +532,7 @@ export class WeightedExerciseBlueprint {
   readonly supersetWithNext: boolean;
   readonly notes: string;
   readonly link: string;
+  readonly muscles: string[];
 
   constructor(
     name: string,
@@ -529,6 +543,7 @@ export class WeightedExerciseBlueprint {
     supersetWithNext: boolean,
     notes: string,
     link: string,
+    muscles: string[] = [],
   ) {
     this.name = name;
     this.sets = sets;
@@ -538,6 +553,7 @@ export class WeightedExerciseBlueprint {
     this.supersetWithNext = supersetWithNext;
     this.notes = notes;
     this.link = link;
+    this.muscles = muscles;
   }
 
   static empty() {
@@ -550,6 +566,7 @@ export class WeightedExerciseBlueprint {
       false,
       '',
       '',
+      [],
     );
   }
 
@@ -565,6 +582,7 @@ export class WeightedExerciseBlueprint {
       pojo.supersetWithNext,
       pojo.notes,
       pojo.link,
+      pojo.muscles ?? [],
     );
   }
 
@@ -594,7 +612,11 @@ export class WeightedExerciseBlueprint {
       ) &&
       this.supersetWithNext === other.supersetWithNext &&
       this.notes === other.notes &&
-      this.link === other.link
+      this.link === other.link &&
+      this.muscles.length === (other.muscles?.length ?? 0) &&
+      this.muscles.every(
+        (muscle, index) => muscle === (other.muscles ?? [])[index],
+      )
     );
   }
 
@@ -609,6 +631,7 @@ export class WeightedExerciseBlueprint {
       supersetWithNext: this.supersetWithNext,
       notes: this.notes,
       link: this.link,
+      muscles: this.muscles,
     };
   }
 
@@ -617,6 +640,7 @@ export class WeightedExerciseBlueprint {
       name: this.name,
       notes: this.notes,
       link: this.link,
+      muscles: this.muscles,
       type: LiftLog.Ui.Models.SessionBlueprintDao.ExerciseType.WEIGHTED,
       sets: this.sets,
       repsPerSet: this.repsPerSet,
@@ -638,6 +662,7 @@ export class WeightedExerciseBlueprint {
       dao.supersetWithNext ?? false,
       dao.notes ?? '',
       dao.link ?? '',
+      dao.muscles ?? [],
     );
   }
 
@@ -653,6 +678,7 @@ export class WeightedExerciseBlueprint {
       other.supersetWithNext ?? this.supersetWithNext,
       other.notes ?? this.notes,
       other.link ?? this.link,
+      other.muscles ?? this.muscles,
     );
   }
 }
@@ -751,6 +777,7 @@ export const EmptyExerciseBlueprint = new WeightedExerciseBlueprint(
   false,
   '',
   '',
+  [],
 );
 
 export function cardioTargetEquals(a: CardioTarget, b: CardioTarget): boolean {

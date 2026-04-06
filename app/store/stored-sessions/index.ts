@@ -24,6 +24,7 @@ import {
 import Enumerable from 'linq';
 import { WeightUnit } from '@/models/weight';
 import { TemporalComparer } from '@/models/comparers';
+import { normalizeMuscleGroupIds } from '@/models/muscle-groups';
 
 export interface ExerciseDescriptor {
   name: string;
@@ -378,7 +379,7 @@ export const selectSessionsInMonth = createSelector(
 
 export const selectMuscles = createSelector([selectExercises], (exercises) =>
   Enumerable.from(Object.entries(exercises))
-    .selectMany(([, x]) => x.muscles)
+    .selectMany(([, x]) => normalizeMuscleGroupIds(x.muscles ?? []))
     .distinct()
     .orderBy((x) => x)
     .toArray(),

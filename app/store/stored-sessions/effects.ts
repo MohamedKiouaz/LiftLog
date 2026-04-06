@@ -1,4 +1,5 @@
 import { addDebouncedEffect, addEffect } from '@/store/store';
+import { normalizeMuscleGroupIds } from '@/models/muscle-groups';
 import {
   addStoredSession,
   checkIfWeightMigrationRequired,
@@ -102,7 +103,9 @@ export function applyStoredSessionsEffects() {
               equipment: b.equipment,
               category: b.category,
               instructions: b.instructions.join('\n'),
-              muscles: b.primaryMuscles.concat(b.secondaryMuscles),
+              muscles: normalizeMuscleGroupIds(
+                b.primaryMuscles.concat(b.secondaryMuscles),
+              ),
             };
             return a;
           },
@@ -111,10 +114,19 @@ export function applyStoredSessionsEffects() {
       const savedExercises = JSON.parse(
         (await keyValueStore.getItem(exerciseListStorageKey)) ?? '{}',
       ) as Record<string, ExerciseDescriptor>;
+      const normalizedSavedExercises = Object.fromEntries(
+        Object.entries(savedExercises).map(([id, exercise]) => [
+          id,
+          {
+            ...exercise,
+            muscles: normalizeMuscleGroupIds(exercise.muscles ?? []),
+          },
+        ]),
+      );
 
       const currentExercises = Object.entries({
         ...builtInExercisesNotAlreadyAdded,
-        ...savedExercises,
+        ...normalizedSavedExercises,
       }).sort((a, b) => a[1].name.localeCompare(b[1].name));
 
       dispatch(setExercises(Object.fromEntries(currentExercises)));

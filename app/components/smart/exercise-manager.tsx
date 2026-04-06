@@ -31,7 +31,7 @@ import { uuid } from '@/utils/uuid';
 import { SwipeRow } from 'react-native-swipe-list-view';
 import { showSnackbar } from '@/store/app';
 import { useMountEffect } from '@/hooks/useMountEffect';
-import ExerciseMuscleSelector from '@/components/presentation/workout-editor/exercise-muscle-selector';
+import MuscleGroupPicker from '@/components/presentation/workout-editor/muscle-group-picker';
 import ExerciseFilterer from '@/components/presentation/workout-editor/exercise-filterer';
 import { LegendList } from '@legendapp/list';
 import { getState } from '@/store/store';
@@ -46,6 +46,11 @@ import { Session, SessionPOJO } from '@/models/session-models';
 import { SessionTarget, setCurrentSession } from '@/store/current-session';
 import { setEditingSession } from '@/store/session-editor';
 import { setStatsIsDirty } from '@/store/stats';
+import {
+  getMuscleGroupTranslationKey,
+  humanizeMuscleGroupId,
+  normalizeMuscleGroupIds,
+} from '@/models/muscle-groups';
 
 type RenameImpact = {
   renamedCount: number;
@@ -112,7 +117,10 @@ function mergeExerciseDescriptors(
     instructions: base.instructions || incoming.instructions,
     level: base.level || incoming.level,
     mechanic: base.mechanic ?? incoming.mechanic,
-    muscles: Array.from(new Set([...base.muscles, ...incoming.muscles])).sort(),
+    muscles: normalizeMuscleGroupIds([
+      ...base.muscles,
+      ...incoming.muscles,
+    ]).sort(),
   };
 }
 
@@ -216,6 +224,7 @@ function ExerciseListItem({
   onDelete: () => void;
 }) {
   const { colors } = useAppTheme();
+  const { t } = useTranslate();
   const exercise = useAppSelectorWithArg(selectExerciseById, exerciseId);
   const [expanded, setExpanded] = useState(expand);
   const [listExpanded, setListExpanded] = useState(expand);
@@ -263,7 +272,17 @@ function ExerciseListItem({
         title={exercise.name}
         // Important to have a space to ensure they are all the same size
         // Otherwise delete button can show through when there is no desc
-        description={exercise.muscles.join(', ') || ' '}
+        description={
+          exercise.muscles.length
+            ? exercise.muscles
+                .map((id) =>
+                  t(getMuscleGroupTranslationKey(id) as never, {
+                    defaultValue: humanizeMuscleGroupId(id),
+                  }),
+                )
+                .join(', ')
+            : ' '
+        }
         descriptionNumberOfLines={1}
         expanded={listExpanded}
         onPress={() => {
@@ -530,7 +549,7 @@ function ExerciseEditSheet({
         multiline
         testID="exercise-instructions-input"
       />
-      <ExerciseMuscleSelector
+      <MuscleGroupPicker
         muscles={exercise.muscles}
         onChange={(muscles) => update({ muscles })}
       />

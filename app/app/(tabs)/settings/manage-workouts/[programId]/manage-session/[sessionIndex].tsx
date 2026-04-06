@@ -97,6 +97,7 @@ function SessionEditor({
         weightIncreaseOnSuccess: BigNumber('2.5'),
         link: '',
         notes: '',
+        muscles: [],
         restBetweenSets: Rest.medium,
         supersetWithNext: false,
       }),

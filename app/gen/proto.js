@@ -3386,6 +3386,7 @@ export const LiftLog = $root.LiftLog = (() => {
                      * @property {string|null} [name] ExerciseBlueprintDaoV2 name
                      * @property {string|null} [notes] ExerciseBlueprintDaoV2 notes
                      * @property {string|null} [link] ExerciseBlueprintDaoV2 link
+                     * @property {Array.<string>|null} [muscles] ExerciseBlueprintDaoV2 muscles
                      * @property {LiftLog.Ui.Models.SessionBlueprintDao.ExerciseType|null} [type] ExerciseBlueprintDaoV2 type
                      * @property {number|null} [sets] ExerciseBlueprintDaoV2 sets
                      * @property {number|null} [repsPerSet] ExerciseBlueprintDaoV2 repsPerSet
@@ -3409,6 +3410,7 @@ export const LiftLog = $root.LiftLog = (() => {
                      * @param {LiftLog.Ui.Models.SessionBlueprintDao.IExerciseBlueprintDaoV2=} [properties] Properties to set
                      */
                     function ExerciseBlueprintDaoV2(properties) {
+                        this.muscles = [];
                         this.cardioSets = [];
                         if (properties)
                             for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -3439,6 +3441,14 @@ export const LiftLog = $root.LiftLog = (() => {
                      * @instance
                      */
                     ExerciseBlueprintDaoV2.prototype.link = "";
+
+                    /**
+                     * ExerciseBlueprintDaoV2 muscles.
+                     * @member {Array.<string>} muscles
+                     * @memberof LiftLog.Ui.Models.SessionBlueprintDao.ExerciseBlueprintDaoV2
+                     * @instance
+                     */
+                    ExerciseBlueprintDaoV2.prototype.muscles = $util.emptyArray;
 
                     /**
                      * ExerciseBlueprintDaoV2 type.
@@ -3576,6 +3586,9 @@ export const LiftLog = $root.LiftLog = (() => {
                             writer.uint32(/* id 8, wireType 2 =*/66).string(message.notes);
                         if (message.link != null && Object.hasOwnProperty.call(message, "link"))
                             writer.uint32(/* id 9, wireType 2 =*/74).string(message.link);
+                        if (message.muscles != null && message.muscles.length)
+                            for (let i = 0; i < message.muscles.length; ++i)
+                                writer.uint32(/* id 17, wireType 2 =*/138).string(message.muscles[i]);
                         if (message.type != null && Object.hasOwnProperty.call(message, "type"))
                             writer.uint32(/* id 10, wireType 0 =*/80).int32(message.type);
                         if (message.deprecatedCardioTarget != null && Object.hasOwnProperty.call(message, "deprecatedCardioTarget"))
@@ -3637,6 +3650,12 @@ export const LiftLog = $root.LiftLog = (() => {
                                 }
                             case 9: {
                                     message.link = reader.string();
+                                    break;
+                                }
+                            case 17: {
+                                    if (!(message.muscles && message.muscles.length))
+                                        message.muscles = [];
+                                    message.muscles.push(reader.string());
                                     break;
                                 }
                             case 10: {
@@ -3733,6 +3752,13 @@ export const LiftLog = $root.LiftLog = (() => {
                         if (message.link != null && message.hasOwnProperty("link"))
                             if (!$util.isString(message.link))
                                 return "link: string expected";
+                        if (message.muscles != null && message.hasOwnProperty("muscles")) {
+                            if (!Array.isArray(message.muscles))
+                                return "muscles: array expected";
+                            for (let i = 0; i < message.muscles.length; ++i)
+                                if (!$util.isString(message.muscles[i]))
+                                    return "muscles: string[] expected";
+                        }
                         if (message.type != null && message.hasOwnProperty("type"))
                             switch (message.type) {
                             default:
@@ -3807,6 +3833,13 @@ export const LiftLog = $root.LiftLog = (() => {
                             message.notes = String(object.notes);
                         if (object.link != null)
                             message.link = String(object.link);
+                        if (object.muscles) {
+                            if (!Array.isArray(object.muscles))
+                                throw TypeError(".LiftLog.Ui.Models.SessionBlueprintDao.ExerciseBlueprintDaoV2.muscles: array expected");
+                            message.muscles = [];
+                            for (let i = 0; i < object.muscles.length; ++i)
+                                message.muscles[i] = String(object.muscles[i]);
+                        }
                         switch (object.type) {
                         default:
                             if (typeof object.type === "number") {
@@ -3879,6 +3912,8 @@ export const LiftLog = $root.LiftLog = (() => {
                             options = {};
                         let object = {};
                         if (options.arrays || options.defaults)
+                            object.muscles = [];
+                        if (options.arrays || options.defaults)
                             object.cardioSets = [];
                         if (options.defaults) {
                             object.name = "";
@@ -3889,6 +3924,7 @@ export const LiftLog = $root.LiftLog = (() => {
                             object.supersetWithNext = false;
                             object.notes = "";
                             object.link = "";
+                            object.muscles = [];
                             object.type = options.enums === String ? "WEIGHTED" : 0;
                             object.deprecatedCardioTarget = null;
                             object.deprecatedTrackDuration = false;
@@ -3912,6 +3948,11 @@ export const LiftLog = $root.LiftLog = (() => {
                             object.notes = message.notes;
                         if (message.link != null && message.hasOwnProperty("link"))
                             object.link = message.link;
+                        if (message.muscles && message.muscles.length) {
+                            object.muscles = [];
+                            for (let j = 0; j < message.muscles.length; ++j)
+                                object.muscles[j] = message.muscles[j];
+                        }
                         if (message.type != null && message.hasOwnProperty("type"))
                             object.type = options.enums === String ? $root.LiftLog.Ui.Models.SessionBlueprintDao.ExerciseType[message.type] === undefined ? message.type : $root.LiftLog.Ui.Models.SessionBlueprintDao.ExerciseType[message.type] : message.type;
                         if (message.deprecatedCardioTarget != null && message.hasOwnProperty("deprecatedCardioTarget"))
