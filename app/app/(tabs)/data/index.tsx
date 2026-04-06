@@ -20,6 +20,7 @@ import SplitCardControl from '@/components/presentation/foundation/split-card-co
 import { ExerciseListSummary } from '@/components/presentation/stats/exercise-list-summary';
 import SingleValueStatisticCard from '@/components/presentation/stats/single-value-statistic-card';
 import { SingleValueStatisticsGrid } from '@/components/presentation/stats/single-value-statistics-grid';
+import { MuscleGroupHeatmap } from '@/components/presentation/stats/muscle-group-heatmap';
 import { TimePeriodSelector } from '@/components/presentation/stats/time-period-selector';
 import { TitledSection } from '@/components/presentation/stats/titled-section';
 import { WeightedExerciseStatSummary } from '@/components/presentation/stats/weighted-exercise-stat-summary';
@@ -64,6 +65,12 @@ import { NormalizedName } from '@/models/blueprint-models';
 import { match } from 'ts-pattern';
 
 type DataTab = 'exercises' | 'muscle-groups' | 'history';
+type MuscleGroupSummary = {
+  id: (typeof KNOWN_MUSCLE_GROUP_IDS)[number];
+  exercises: GranularStatisticView['weightedExerciseStats'];
+  averageWeeklySets: number;
+};
+
 const FLOATING_TAB_TOP_OFFSET = spacing[2];
 const FLOATING_TAB_FLOAT_THRESHOLD = 4;
 
@@ -350,14 +357,22 @@ function MuscleGroupsTab({
             normalizeMuscleGroupIds(exercise.muscles ?? []),
           );
         });
-        return KNOWN_MUSCLE_GROUP_IDS.map((muscleGroupId) => ({
-          id: muscleGroupId,
-          exercises: loadedStats.weightedExerciseStats.filter((exerciseStats) =>
-            musclesByExerciseName
-              .get(new NormalizedName(exerciseStats.exerciseName).toString())
-              ?.includes(muscleGroupId),
-          ),
-        })).filter((group) => group.exercises.length > 0);
+        return KNOWN_MUSCLE_GROUP_IDS.map((muscleGroupId): MuscleGroupSummary => {
+          const matchingExercises = loadedStats.weightedExerciseStats.filter(
+            (exerciseStats) =>
+              musclesByExerciseName
+                .get(new NormalizedName(exerciseStats.exerciseName).toString())
+                ?.includes(muscleGroupId),
+          );
+          return {
+            id: muscleGroupId,
+            exercises: matchingExercises,
+            averageWeeklySets: matchingExercises.reduce(
+              (total, exerciseStats) => total + exerciseStats.setsPerWeek,
+              0,
+            ),
+          };
+        }).filter((group) => group.exercises.length > 0);
       }),
     [exercises, stats],
   );
@@ -392,6 +407,12 @@ function MuscleGroupsTab({
         success={(groups) =>
           groups.length ? (
             <View style={{ gap: spacing[4] }}>
+              <MuscleGroupHeatmap
+                values={groups.map((group) => ({
+                  id: group.id,
+                  value: group.averageWeeklySets,
+                }))}
+              />
               {groups.map((group) => (
                 <TitledSection
                   key={group.id}
