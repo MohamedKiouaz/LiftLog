@@ -50,8 +50,11 @@ export function MaterialBottomTabs({
         animation: Platform.OS === 'web' ? 'none' : 'shift',
       }}
       tabBar={({ navigation, state, descriptors, insets }) => {
+        const hiddenRouteNames = new Set(['stats', 'history']);
         const routes = state.routes.filter(
-          (x) => showFeed || !x.name.includes('feed'),
+          (route) =>
+            (showFeed || !route.name.includes('feed')) &&
+            !hiddenRouteNames.has(route.name),
         );
 
         const wrapperHeight = insets.bottom + 112;
@@ -260,7 +263,7 @@ export function MaterialBottomTabs({
 
 MaterialBottomTabs.Screen = Tabs.Screen;
 
-function deriveDockBackgroundColor(
+export function deriveDockBackgroundColor(
   accentColor: string,
   fallbackColor: string,
   isDark: boolean,
@@ -287,7 +290,7 @@ function deriveDockBackgroundColor(
   }
 }
 
-function deriveDockBorderColor(
+export function deriveDockBorderColor(
   accentColor: string,
   fallbackColor: string,
   isDark: boolean,
