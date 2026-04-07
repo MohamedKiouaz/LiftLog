@@ -73,8 +73,11 @@ function LoadedStatsFilled({ stats }: { stats: WeightedExerciseStatistics }) {
   return (
     <View style={{ gap: spacing[4] }}>
       <OverallStatsGrid stats={stats} />
-      <StatCardWithTitle title={t('stats.exercise.weight_progress.title')}>
+      <StatCardWithTitle title={t('stats.exercise.max_weight.title')}>
         <WeightLineChart statistics={stats.maxLiftedPerSessionStatistics} />
+      </StatCardWithTitle>
+      <StatCardWithTitle title={t('stats.exercise.1rm_progress.title')}>
+        <WeightLineChart statistics={stats.max1RMPerSessionStatistics} />
       </StatCardWithTitle>
       <StatCardWithTitle title={t('stats.exercise.volume_per_workout.title')}>
         <WeightBarChart statistics={stats.totalVolumeStatistics} />
@@ -136,7 +139,9 @@ function OverallStatsGrid({ stats }: { stats: WeightedExerciseStatistics }) {
         <SingleValueStatisticCard
           title={t('stats.exercise.estimated_1rm.label')}
           icon={'function'}
-          value={stats.oneRepMax.shortLocaleFormat(0)}
+          value={stats.max1RMPerSessionStatistics.currentValue.shortLocaleFormat(
+            0,
+          )}
         />
         <SingleValueStatisticCard
           title={t('stats.exercise.usual_rep_range.label')}

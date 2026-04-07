@@ -32,7 +32,10 @@ export function WeightedExerciseStatSummary({
             )}
           </Text>
           <Text variant="bodySmall">
-            1RM: {exerciseStats.oneRepMax.shortLocaleFormat(0)}
+            1RM:{' '}
+            {exerciseStats.max1RMPerSessionStatistics.currentValue.shortLocaleFormat(
+              0,
+            )}
           </Text>
         </View>
       </View>

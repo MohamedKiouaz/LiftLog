@@ -352,7 +352,6 @@
   "stats.exercise.reps_breakdown_sets_x_axis.label": "Nº Repetições",
   "stats.exercise.total_lifted.label": "Total levantado",
   "stats.exercise.volume_per_workout.title": "Volume Por Treino",
-  "stats.exercise.weight_progress.title": "Evolução de Carga",
   "stats.heaviest_lift.label": "Maior carga",
   "stats.max_weight_in_workout.label": "Volume máximo",
   "stats.no_data.message": "Não há dados no período selecionado.",

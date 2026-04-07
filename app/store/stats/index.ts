@@ -42,9 +42,9 @@ export interface WeightedExerciseStatistics {
   exerciseName: string;
   setsPerWeek: number;
   maxLiftedPerSessionStatistics: WeightedStatisticOverTime;
+  max1RMPerSessionStatistics: WeightedStatisticOverTime;
   totalVolumeStatistics: WeightedStatisticOverTime;
   repsStatistics: RepsBreakdownStatistics;
-  oneRepMax: Weight;
 }
 
 export interface PinnedExerciseStatistic {
