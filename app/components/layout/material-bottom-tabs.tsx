@@ -176,7 +176,7 @@ export function MaterialBottomTabs({
                       backgroundColor: focused
                         ? colors.primaryContainer
                         : hovered || pressed
-                          ? '#ffffff14'
+                          ? `${colors.onSurface}10`
                           : 'transparent',
                       opacity: pressed ? 0.92 : 1,
                     })}
@@ -186,7 +186,7 @@ export function MaterialBottomTabs({
                         ? colors.onPrimaryContainer
                         : hovered || pressed
                           ? colors.onSurface
-                          : '#ffffff';
+                          : colors.onSurfaceVariant;
                       return (
                         <View
                           style={{
