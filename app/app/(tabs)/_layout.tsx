@@ -50,7 +50,7 @@ export default function Layout() {
       <Tabs.Screen
         name="data"
         options={{
-          tabBarLabel: t('generic.data.title'),
+          tabBarLabel: 'Progress',
           tabBarButtonTestID: 'nav__data',
           tabBarIcon: ({ color, size, focused }) => {
             return (
