@@ -7,6 +7,7 @@ import IconButton from '@/components/presentation/foundation/gesture-wrappers/ic
 import { Remote } from '@/components/presentation/foundation/remote';
 import SessionSummary from '@/components/presentation/summary/session-summary';
 import SessionSummaryTitle from '@/components/presentation/summary/session-summary-title';
+import WorkoutMuscleLogo from '@/components/presentation/summary/workout-muscle-logo';
 import SplitCardControl from '@/components/presentation/foundation/split-card-control';
 import { spacing } from '@/hooks/useAppTheme';
 import { Session } from '@/models/session-models';
@@ -218,7 +219,10 @@ function SessionCardContent({ session }: { session: Session }) {
         <SessionSummaryTitle isFilled={session.isStarted} session={session} />
       }
       mainContent={
-        <SessionSummary session={session} isFilled={false} showWeight />
+        <View>
+          <SessionSummary session={session} isFilled={false} showWeight />
+          {!session.isStarted ? <WorkoutMuscleLogo session={session} /> : null}
+        </View>
       }
     />
   );
