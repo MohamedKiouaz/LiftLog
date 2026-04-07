@@ -1,5 +1,10 @@
 import { font, spacing, useAppTheme } from '@/hooks/useAppTheme';
 import {
+  BODY_PARTS_BY_MUSCLE,
+  DISABLED_BODY_SLUGS,
+  type BodySide,
+} from '@/models/muscle-group-body-map';
+import {
   getMuscleGroupTranslationKey,
   humanizeMuscleGroupId,
   type MuscleGroupId,
@@ -7,18 +12,8 @@ import {
 import { useTranslate } from '@tolgee/react';
 import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Body, {
-  type ExtendedBodyPart,
-  type Slug,
-} from 'react-native-body-highlighter';
+import Body, { type ExtendedBodyPart, type Slug } from 'react-native-body-highlighter';
 import { Text } from 'react-native-paper';
-
-type BodySide = 'front' | 'back';
-
-type BodyPartTarget = {
-  slug: Slug;
-  side?: 'left' | 'right';
-};
 
 type LabelAnchor = {
   top: number;
@@ -29,37 +24,6 @@ type MuscleHeatValue = {
   id: MuscleGroupId;
   value: number;
 };
-
-const BODY_PARTS_BY_MUSCLE: Partial<Record<MuscleGroupId, BodyPartTarget[]>> = {
-  chest: [{ slug: 'chest' }],
-  shoulders: [{ slug: 'deltoids' }],
-  biceps: [{ slug: 'biceps' }],
-  triceps: [{ slug: 'triceps' }],
-  forearms: [{ slug: 'forearm' }],
-  abs: [{ slug: 'abs' }],
-  obliques: [{ slug: 'obliques' }],
-  traps: [{ slug: 'trapezius' }],
-  lats: [{ slug: 'upper-back' }],
-  upper_back: [{ slug: 'upper-back' }],
-  lower_back: [{ slug: 'lower-back' }],
-  glutes: [{ slug: 'gluteal' }],
-  quads: [{ slug: 'quadriceps' }],
-  hamstrings: [{ slug: 'hamstring' }],
-  calves: [{ slug: 'calves' }],
-  adductors: [{ slug: 'adductors' }],
-  abductors: [{ slug: 'gluteal' }],
-} as const;
-
-const DISABLED_BODY_SLUGS: Slug[] = [
-  'ankles',
-  'feet',
-  'hair',
-  'hands',
-  'head',
-  'knees',
-  'neck',
-  'tibialis',
-];
 
 const LABEL_ANCHORS: Partial<
   Record<MuscleGroupId, Partial<Record<BodySide, LabelAnchor>>>
@@ -149,7 +113,6 @@ export function MuscleGroupHeatmap({
 
   return (
     <View style={styles.root}>
-      <Text variant="bodyMedium">{t('exercise.muscle_groups.body_map.label')}</Text>
       <Text variant="bodySmall">{t('stats.exercise.sets_per_week.label')}</Text>
       <View style={styles.bodyMapRow}>
         <View style={styles.bodyMapColumn}>

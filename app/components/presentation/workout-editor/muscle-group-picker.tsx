@@ -5,63 +5,24 @@ import {
   KNOWN_MUSCLE_GROUP_IDS,
   normalizeMuscleGroupIds,
 } from '@/models/muscle-groups';
+import {
+  BODY_PARTS_BY_MUSCLE,
+  BODY_SLUG_TO_MUSCLE,
+  DISABLED_BODY_SLUGS,
+  type BodySide,
+} from '@/models/muscle-group-body-map';
 import { useTranslate } from '@tolgee/react';
 import { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Body, {
-  type ExtendedBodyPart,
-  type Slug,
-} from 'react-native-body-highlighter';
+import Body, { type ExtendedBodyPart } from 'react-native-body-highlighter';
 import { Card, Chip, SegmentedButtons, Text } from 'react-native-paper';
 
-type BodySide = 'front' | 'back';
 type MuscleGroupId = (typeof KNOWN_MUSCLE_GROUP_IDS)[number];
-
-type BodyPartTarget = {
-  slug: Slug;
-  side?: 'left' | 'right';
-};
 
 type PickerProps = {
   muscles: string[];
   onChange: (muscles: string[]) => void;
 };
-
-const BODY_PARTS_BY_MUSCLE: Partial<Record<MuscleGroupId, BodyPartTarget[]>> = {
-  chest: [{ slug: 'chest' }],
-  shoulders: [{ slug: 'deltoids' }],
-  biceps: [{ slug: 'biceps' }],
-  triceps: [{ slug: 'triceps' }],
-  forearms: [{ slug: 'forearm' }],
-  abs: [{ slug: 'abs' }],
-  obliques: [{ slug: 'obliques' }],
-  traps: [{ slug: 'trapezius' }],
-  upper_back: [{ slug: 'upper-back' }],
-  lower_back: [{ slug: 'lower-back' }],
-  glutes: [{ slug: 'gluteal' }],
-  quads: [{ slug: 'quadriceps' }],
-  hamstrings: [{ slug: 'hamstring' }],
-  calves: [{ slug: 'calves' }],
-  adductors: [{ slug: 'adductors' }],
-} as const;
-
-const BODY_SLUG_TO_MUSCLE = new Map<Slug, MuscleGroupId>(
-  Object.entries(BODY_PARTS_BY_MUSCLE).flatMap(([muscleId, targets]) =>
-    (targets ?? []).map((target) => [target.slug, muscleId as MuscleGroupId]),
-  ),
-);
-
-const ENABLED_BODY_SLUGS = new Set(BODY_SLUG_TO_MUSCLE.keys());
-const DISABLED_BODY_SLUGS: Slug[] = [
-  'ankles',
-  'feet',
-  'hair',
-  'hands',
-  'head',
-  'knees',
-  'neck',
-  'tibialis',
-].filter((slug) => !ENABLED_BODY_SLUGS.has(slug as Slug)) as Slug[];
 
 export default function MuscleGroupPicker(props: PickerProps) {
   const { colors } = useAppTheme();
