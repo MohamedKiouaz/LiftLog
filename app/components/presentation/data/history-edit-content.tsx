@@ -24,7 +24,7 @@ export function HistoryEditContent(props: {
 
   useEffect(() => {
     if (!session) {
-      dismissTo(props.emptyRoute);
+      dismissTo(props.emptyRoute as never);
     }
   }, [dismissTo, props.emptyRoute, session]);
 

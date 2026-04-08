@@ -37,7 +37,7 @@ export function ExpandedWeightedExerciseContent(props: {
 
   useEffect(() => {
     if (!exerciseName) {
-      dismissTo(props.emptyRoute);
+      dismissTo(props.emptyRoute as never);
     }
   }, [dismissTo, exerciseName, props.emptyRoute]);
 
