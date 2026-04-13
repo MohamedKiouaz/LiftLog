@@ -12,7 +12,7 @@ import {
 } from './index';
 import { Duration, OffsetDateTime, ZoneId } from '@js-joda/core';
 import { fetchOverallStats, setOverallStats } from './index';
-import { addEffect } from '@/store/store';
+import { AddEffectFn } from '@/store/store';
 import { selectSessionsBy } from '@/store/stored-sessions';
 import {
   PotentialSet,
@@ -340,7 +340,7 @@ function computeStats(
   };
 }
 
-export function applyStatsEffects() {
+export function applyStatsEffects(addEffect: AddEffectFn) {
   addEffect(fetchOverallStats, async (_, { getState, dispatch }) => {
     const state = getState();
 
