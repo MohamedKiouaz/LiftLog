@@ -1,3 +1,4 @@
+import { fuzzyMatchScore } from '@/components/presentation/workout-editor/exercise-fuzzy-match';
 import ExerciseSearchAndFilters from '@/components/presentation/workout-editor/exercise-search-and-filters';
 import { ExerciseDescriptor } from '@/models/exercise-models';
 import { useAppSelector } from '@/store';
@@ -19,35 +20,39 @@ export default function ExerciseFilterer(props: {
 
   const search = useDebouncedCallback(() => {
     const trimmed = searchText.trim();
-    const escaped = escapeRegExp(trimmed);
-    const searchRegex = new RegExp(escaped, 'i');
-    const startsWithRegex = new RegExp('^' + escaped, 'i');
-    const fullMatchRegex = new RegExp('^' + escaped + '$', 'i');
+    const trimmedSearchText = escapeRegExp(trimmed);
+    const fullMatchRegex = new RegExp('^' + trimmedSearchText + '$', 'i');
     let hasExactMatch = false;
     const newFilteredExercises = Enumerable.from(Object.entries(exercises))
+      .select((x) => ({
+        entry: { id: x[0], exercise: x[1] },
+        score: trimmedSearchText
+          ? fuzzyMatchScore(trimmedSearchText, x[1].name)
+          : 0,
+      }))
       .where(
         (x) =>
           (!muscleFilters.length ||
-            x[1].muscles.some((exerciseMuscle) =>
+            x.entry.exercise.muscles.some((exerciseMuscle) =>
               muscleFilters.includes(exerciseMuscle),
             )) &&
-          (!trimmed || searchRegex.test(x[1].name)),
+          (!trimmedSearchText || x.score !== null),
       )
+      .orderByDescending((x) => x.score ?? 0)
+      .thenBy((x) => x.entry.exercise.name)
       .doAction((x) => {
-        if (!hasExactMatch && trimmed && fullMatchRegex.test(x[1].name)) {
+        if (
+          !hasExactMatch &&
+          trimmedSearchText &&
+          fullMatchRegex.test(x.entry.exercise.name)
+        ) {
           hasExactMatch = true;
         }
       })
-      // If the exercise starts with the search term, then it is a good match and should be brought to the top
-      .orderByDescending(
-        (x) =>
-          (startsWithRegex.test(x[1].name) ? 1 : 0) +
-          (fullMatchRegex.test(x[1].name) ? 1 : 0),
-      )
-      .select((x) => x[0])
+      .select((x) => x.entry.id)
       .toArray();
     onFilteredExerciseIdsChange(newFilteredExercises);
-    if (!hasExactMatch && searchText) {
+    if (!hasExactMatch && trimmedSearchText) {
       onSuggestedNewExercise({
         name: trimmed,
         category: '',
