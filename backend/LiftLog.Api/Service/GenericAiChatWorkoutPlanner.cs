@@ -214,14 +214,15 @@ public partial class GenericAiChatWorkoutPlanner(
                     pendingPlanResponse = deserialized;
                     await callback(deserialized);
 
-                    // Add the function call result to the conversation
+                    // Add the function call result to the conversation including the plan so
+                    // the AI can iterate on it if the user asks for changes
                     messages.Add(
                         new ChatMessage(
                             ChatRole.Tool,
                             [
                                 new FunctionResultContent(
                                     functionCall.CallId,
-                                    "Plan created and sent to user successfully"
+                                    $"Plan created and sent to user successfully. Plan: {jsonResult}"
                                 ),
                             ]
                         )
