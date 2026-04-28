@@ -122,11 +122,14 @@ public partial class GenericAiChatWorkoutPlanner(
                 new AIFunctionFactoryOptions { Name = "create_workout_plan" }
             );
 
-            var chatOptions = new ChatOptions { Tools = [workoutPlanTool] };
+            var chatOptions = new ChatOptions
+            {
+                Tools = [workoutPlanTool],
+                MaxOutputTokens = 100_000,
+            };
 
             var responseText = "";
             var updates = new List<ChatResponseUpdate>();
-
             await foreach (
                 var update in _chatClient
                     .GetStreamingResponseAsync(messages, chatOptions, cancellationToken.Token)
@@ -141,16 +144,6 @@ public partial class GenericAiChatWorkoutPlanner(
                     responseText += update.Text;
                     await callback(new AiChatMessageResponse(responseText));
                 }
-
-                // Check for function call results
-                foreach (var content in update.Contents)
-                {
-                    if (content is FunctionCallContent functionCall)
-                    {
-                        // The AI is requesting to call a tool
-                        await ProcessFunctionCallAsync(functionCall, callback, workoutPlanTool);
-                    }
-                }
             }
 
             if (cancellationToken.IsCancellationRequested)
@@ -160,13 +153,41 @@ public partial class GenericAiChatWorkoutPlanner(
 
             // Build the response and add to history
             var response = updates.ToChatResponse();
+            var nonCachedInput =
+                (response.Usage?.InputTokenCount ?? 0)
+                - (response.Usage?.CachedInputTokenCount ?? 0);
+            var cachedInput = response.Usage?.CachedInputTokenCount ?? 0;
+            var outputTokens = response.Usage?.OutputTokenCount ?? 0;
+            var estimatedCostUsd =
+                nonCachedInput * 3.0 / 1_000_000
+                + cachedInput * 0.3 / 1_000_000
+                + outputTokens * 15.0 / 1_000_000;
+            _logger.LogInformation(
+                "Completion finished. Usage: Total:{Total} [Input:{Input} (Cached:{Cached}) Output:{Output}] EstimatedCost:${Cost:F6}",
+                response.Usage?.TotalTokenCount,
+                response.Usage?.InputTokenCount,
+                response.Usage?.CachedInputTokenCount,
+                response.Usage?.OutputTokenCount,
+                estimatedCostUsd
+            );
+            // Add assistant message (including any tool_use blocks) before tool results
             messages.AddMessages(response);
 
-            // If there was a pending plan response from a tool call, the function result was already added
-            // Check if we need to continue the conversation after a tool call
+            // Process function calls after the assistant message is in history so that
+            // tool_result blocks always follow their corresponding tool_use block
+            foreach (var message in response.Messages)
+            {
+                foreach (var content in message.Contents)
+                {
+                    if (content is FunctionCallContent functionCall)
+                    {
+                        await ProcessFunctionCallAsync(functionCall, callback, workoutPlanTool);
+                    }
+                }
+            }
+
             if (pendingPlanResponse != null)
             {
-                // Plan was sent via callback during tool processing
                 pendingPlanResponse = null;
             }
 
