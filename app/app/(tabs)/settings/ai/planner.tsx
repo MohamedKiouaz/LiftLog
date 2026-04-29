@@ -50,6 +50,7 @@ import Purchases, {
 import { setProToken } from '@/store/settings';
 import { Session } from '@/models/session-models';
 import { usePreferredWeightUnit } from '@/hooks/usePreferredWeightUnit';
+import { Loader } from '@/components/presentation/foundation/loader';
 
 export default function AiPlanner() {
   const { t } = useTranslate();
@@ -214,9 +215,14 @@ function ChatBubble(props: {
           ))
           .with({ type: 'purchasePro' }, () => <ProPrompt />)
           .exhaustive()}
+        {message.isLoading && <ChatLoader />}
       </Animated.View>
     </View>
   );
+}
+
+function ChatLoader() {
+  return <Loader loadingText="" />;
 }
 
 function GeneralMessage({
