@@ -11,7 +11,7 @@ export async function updateSessionsToLatestVersion(db: ExpoSQLiteDatabase) {
       .from(sessionsSchema)
       .where(lt(sessionsSchema.modelVersion, LatestVersion));
     for (const session of sessionsRequiringMigration) {
-      await db
+      await tx
         .update(sessionsSchema)
         .set({
           modelVersion: LatestVersion,
@@ -32,7 +32,7 @@ export async function updateProgramsToLatestVersion(db: ExpoSQLiteDatabase) {
       .from(programsSchema)
       .where(lt(programsSchema.modelVersion, LatestVersion));
     for (const program of programsRequiringMigration) {
-      await db
+      await tx
         .update(programsSchema)
         .set({
           modelVersion: LatestVersion,
@@ -53,7 +53,7 @@ export async function updateExercisesToLatestVersion(db: ExpoSQLiteDatabase) {
       .from(exercisesSchema)
       .where(lt(exercisesSchema.modelVersion, LatestVersion));
     for (const program of programsRequiringMigration) {
-      await db
+      await tx
         .update(exercisesSchema)
         .set({
           modelVersion: LatestVersion,
