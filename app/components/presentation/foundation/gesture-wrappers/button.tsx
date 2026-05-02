@@ -31,7 +31,7 @@ export default function Button({
   return (
     <GestureDetector gesture={gesture}>
       <NativeButton
-        disabled={disabled!}
+        disabled={disabled}
         onPress={onPress ? () => {} : undefined!}
         onLongPress={onLongPress || onPress ? () => {} : undefined!}
         {...rest}

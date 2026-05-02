@@ -1,7 +1,6 @@
 /* eslint-disable */
 const { defineConfig, globalIgnores } = require('eslint/config');
 
-const prettier = require('eslint-plugin-prettier');
 const reactCompiler = require('eslint-plugin-react-compiler');
 const unusedImports = require('eslint-plugin-unused-imports');
 const typescriptEslint = require('@typescript-eslint/eslint-plugin');
@@ -38,7 +37,6 @@ module.exports = defineConfig([
   {
     extends: compat.extends(
       'expo',
-      'prettier',
       'plugin:@typescript-eslint/recommended-type-checked',
     ),
     ignores: [
@@ -54,14 +52,12 @@ module.exports = defineConfig([
       'types/dom.slim.d.ts',
     ],
     plugins: {
-      prettier,
       'react-compiler': reactCompiler,
       'unused-imports': unusedImports,
       '@typescript-eslint': typescriptEslint,
     },
 
     rules: {
-      'prettier/prettier': 'error',
       'import/no-unresolved': 'off',
       'react-compiler/react-compiler': 'error',
       'unused-imports/no-unused-imports': 'error',

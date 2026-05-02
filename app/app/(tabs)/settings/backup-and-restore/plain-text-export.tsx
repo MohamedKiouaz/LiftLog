@@ -1,5 +1,5 @@
 import FullHeightScrollView from '@/components/layout/full-height-scroll-view';
-import LabelledForm from '@/components/presentation/foundation/labelled-form';
+import Form from '@/components/presentation/foundation/form';
 import LabelledFormRow from '@/components/presentation/foundation/labelled-form-row';
 import { SurfaceText } from '@/components/presentation/foundation/surface-text';
 import { spacing } from '@/hooks/useAppTheme';
@@ -47,7 +47,7 @@ export default function PlainTextExportPage() {
           </Button>
         </Card.Content>
       </Card>
-      <LabelledForm>
+      <Form>
         <LabelledFormRow
           label={t('backup.plaintext_export.format.label')}
           icon={'descriptionFill'}
@@ -62,7 +62,7 @@ export default function PlainTextExportPage() {
             onSelect={(s) => s && setFormat(s as PlaintextExportFormat)}
           ></Dropdown>
         </LabelledFormRow>
-      </LabelledForm>
+      </Form>
       <View
         style={{
           flexDirection: 'row',

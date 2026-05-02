@@ -4,7 +4,7 @@ import ExerciseBlueprintSummary from '@/components/presentation/workout-editor/e
 import FloatingBottomContainer from '@/components/presentation/foundation/floating-bottom-container';
 import FullHeightScrollView from '@/components/layout/full-height-scroll-view';
 import ItemList from '@/components/presentation/foundation/item-list';
-import LabelledForm from '@/components/presentation/foundation/labelled-form';
+import Form from '@/components/presentation/foundation/form';
 import LabelledFormRow from '@/components/presentation/foundation/labelled-form-row';
 import LimitedHtml from '@/components/presentation/foundation/limited-html';
 import CopyExerciseDialog from '@/components/smart/copy-exercise-dialog';
@@ -143,7 +143,7 @@ function SessionEditor({
   return (
     <FullHeightScrollView floatingChildren={floatingBottomContainer}>
       <Stack.Screen options={{ title: session.name }} />
-      <LabelledForm>
+      <Form>
         <LabelledFormRow
           label={t('workout.name.label')}
           icon={'assignmentFill'}
@@ -198,7 +198,7 @@ function SessionEditor({
             )}
           />
         </LabelledFormRow>
-      </LabelledForm>
+      </Form>
       <ConfirmationDialog
         headline={t('exercise.remove.confirm.title')}
         onOk={() => {

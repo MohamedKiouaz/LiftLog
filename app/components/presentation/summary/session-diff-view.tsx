@@ -191,14 +191,14 @@ function DiffChangeRow({
 
   return (
     <List.Item
-      disabled={disabled!}
+      disabled={disabled}
       onPress={onToggle}
       title={t(label.key, label.params)}
       titleStyle={variantColor ? { color: variantColor } : undefined}
       description={t(description.key, description.params)}
       left={() => (
         <Checkbox
-          disabled={disabled!}
+          disabled={disabled}
           status={selected ? 'checked' : 'unchecked'}
         />
       )}

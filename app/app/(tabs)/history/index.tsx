@@ -53,11 +53,6 @@ export default function History() {
     selectCurrentSession,
     'workoutSession',
   );
-  const openWorkoutStats = (session: Session) => {
-    push(
-      `/history/post-workout?sessionId=${encodeURIComponent(session.id)}&source=history`,
-    );
-  };
   const onSelectSession = (session: Session) => {
     dispatch(setCurrentSession({ target: 'historySession', session }));
     push('/history/edit');

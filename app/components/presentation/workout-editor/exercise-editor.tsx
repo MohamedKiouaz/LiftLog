@@ -4,10 +4,8 @@ import EditableIncrementer from '@/components/presentation/foundation/editors/ed
 import ExerciseFilterer from '@/components/presentation/workout-editor/exercise-filterer';
 import FixedIncrementer from '@/components/presentation/foundation/editors/fixed-incrementer';
 import Button from '@/components/presentation/foundation/gesture-wrappers/button';
-import LabelledForm from '@/components/presentation/foundation/labelled-form';
-import LabelledFormRow from '@/components/presentation/foundation/labelled-form-row';
-import ListSwitch from '@/components/presentation/foundation/list-switch';
-import RestEditorGroup from '@/components/presentation/workout-editor/rest-editor-group';
+import Form from '@/components/presentation/foundation/form';
+import { RestEditorDialog } from '@/components/presentation/workout-editor/rest-editor-dialog';
 import SelectButton from '@/components/presentation/foundation/select-button';
 import { spacing, useAppTheme } from '@/hooks/useAppTheme';
 import {
@@ -36,20 +34,22 @@ import BottomSheet, {
 import { Duration } from '@js-joda/core';
 import { T, useTranslate } from '@tolgee/react';
 import BigNumber from 'bignumber.js';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Keyboard, View } from 'react-native';
-import {
-  Card,
-  Divider,
-  List,
-  SegmentedButtons,
-  TextInput,
-} from 'react-native-paper';
+import { Divider, List, SegmentedButtons, TextInput } from 'react-native-paper';
 import { match, P } from 'ts-pattern';
 import { LegendList } from '@legendapp/list';
 import { ExerciseDescriptor } from '@/models/exercise-models';
 import { useDispatch } from 'react-redux';
 import { uuid } from '@/utils/uuid';
+import { FormRow } from '@/components/presentation/foundation/form-row';
+import {
+  SegmentedList,
+  SegmentListFormElement,
+} from '@/components/presentation/foundation/segmented-list';
+import { SegmentedListSwitch } from '@/components/presentation/foundation/segmented-list-switch';
+import RestFormat from '@/components/presentation/foundation/rest-format';
+import { KeysOfType } from '@/utils/types';
 
 interface ExerciseEditorProps {
   exercise: ExerciseBlueprint;
@@ -79,7 +79,6 @@ export function ExerciseEditor(props: ExerciseEditorProps) {
     () => ['filter', suggestedNewExercise, ...filteredExerciseIds] as const,
     [filteredExerciseIds, suggestedNewExercise],
   );
-  const { t } = useTranslate();
   const { exercise: propsExercise, updateExercise: updatePropsExercise } =
     props;
   const [exercise, setExercise] = useState(propsExercise);
@@ -127,12 +126,22 @@ export function ExerciseEditor(props: ExerciseEditorProps) {
     .exhaustive();
 
   return (
-    <View style={{ gap: spacing[4] }}>
-      <LabelledForm>
-        <LabelledFormRow
-          label={t('exercise.type.label')}
-          icon={'fitnessCenterFill'}
-        >
+    <View style={{ paddingVertical: spacing.pageHorizontalMargin }}>
+      <Form>
+        <FormRow>
+          <Button
+            icon={'contentPasteSearch'}
+            mode="contained"
+            onPress={() => {
+              setBottomSheetShown(true);
+              Keyboard.dismiss();
+              bottomSheetRef.current?.expand();
+            }}
+          >
+            {exercise.name}
+          </Button>
+        </FormRow>
+        <FormRow>
           <SegmentedButtons
             value={
               exercise instanceof WeightedExerciseBlueprint
@@ -155,22 +164,9 @@ export function ExerciseEditor(props: ExerciseEditorProps) {
             ]}
             onValueChange={handleTypeChange}
           />
-        </LabelledFormRow>
-        <LabelledFormRow label={t('exercise.exercise.label')} icon="infoFill">
-          <Button
-            mode="outlined"
-            icon={'search'}
-            onPress={() => {
-              setBottomSheetShown(true);
-              Keyboard.dismiss();
-              bottomSheetRef.current?.expand();
-            }}
-          >
-            {exercise.name}
-          </Button>
-        </LabelledFormRow>
+        </FormRow>
         {exerciseEditor}
-      </LabelledForm>
+      </Form>
       <AppBottomSheet
         index={-1}
         sheetRef={bottomSheetRef}
@@ -321,56 +317,82 @@ function CardioSetEditor(props: {
 }) {
   const { t } = useTranslate();
   const { set, updateSet } = props;
+  const toggleSetItem =
+    (item: KeysOfType<CardioExerciseSetBlueprint, boolean>) => () =>
+      updateSet(set.with({ [item]: !set[item] }));
   return (
     <>
       <CardioTargetEditor
         target={set.target}
         onValueChange={(target) => updateSet(set.with({ target }))}
       />
-      <List.Section>
-        <ListSwitch
-          value={set.trackDuration || set.target.type === 'time'}
-          testID="track-time-switch"
-          onValueChange={(trackDuration) =>
-            updateSet(set.with({ trackDuration }))
-          }
-          headline={t('exercise.track_time.label')}
-          disabled={set.target.type === 'time'}
-        />
-        <ListSwitch
-          value={set.trackDistance || set.target.type === 'distance'}
-          testID="track-distance-switch"
-          onValueChange={(trackDistance) =>
-            updateSet(set.with({ trackDistance }))
-          }
-          headline={t('exercise.track_distance.label')}
-          disabled={set.target.type === 'distance'}
-        />
-        <ListSwitch
-          value={set.trackResistance}
-          onValueChange={(trackResistance) =>
-            updateSet(set.with({ trackResistance }))
-          }
-          headline={t('exercise.track_resistance.label')}
-        />
-        <ListSwitch
-          value={set.trackIncline}
-          onValueChange={(trackIncline) =>
-            updateSet(set.with({ trackIncline }))
-          }
-          headline={t('exercise.track_incline.label')}
-        />
-        <ListSwitch
-          value={set.trackWeight}
-          onValueChange={(trackWeight) => updateSet(set.with({ trackWeight }))}
-          headline={t('exercise.track_weight.label')}
-        />
-        <ListSwitch
-          value={set.trackSteps}
-          onValueChange={(trackSteps) => updateSet(set.with({ trackSteps }))}
-          headline={t('exercise.track_steps.label')}
-        />
-      </List.Section>
+      <SegmentedList
+        renderItem={(i) => i[0]}
+        onItemPress={([_, toggle]) => toggle()}
+        items={
+          [
+            [
+              <SegmentedListSwitch
+                value={set.trackDuration || set.target.type === 'time'}
+                testID="track-time-switch"
+                icon={'timer'}
+                onValueChange={toggleSetItem('trackDuration')}
+                label={t('exercise.track_time.label')}
+                disabled={set.target.type === 'time'}
+              />,
+              toggleSetItem('trackDuration'),
+            ],
+            [
+              <SegmentedListSwitch
+                value={set.trackDistance || set.target.type === 'distance'}
+                icon={'trailLength'}
+                testID="track-distance-switch"
+                onValueChange={toggleSetItem('trackDistance')}
+                label={t('exercise.track_distance.label')}
+                disabled={set.target.type === 'distance'}
+              />,
+              toggleSetItem('trackDistance'),
+            ],
+            [
+              <SegmentedListSwitch
+                icon={'speed'}
+                value={set.trackResistance}
+                onValueChange={toggleSetItem('trackResistance')}
+                label={t('exercise.track_resistance.label')}
+              />,
+              toggleSetItem('trackResistance'),
+            ],
+            [
+              <SegmentedListSwitch
+                value={set.trackIncline}
+                icon={'elevation'}
+                onValueChange={toggleSetItem('trackIncline')}
+                label={t('exercise.track_incline.label')}
+              />,
+              toggleSetItem('trackIncline'),
+            ],
+            [
+              <SegmentedListSwitch
+                value={set.trackWeight}
+                icon={'weight'}
+                onValueChange={toggleSetItem('trackWeight')}
+                label={t('exercise.track_weight.label')}
+              />,
+              toggleSetItem('trackWeight'),
+            ],
+            [
+              <SegmentedListSwitch
+                value={set.trackSteps}
+                icon={'steps'}
+                onValueChange={toggleSetItem('trackSteps')}
+                label={t('exercise.track_steps.label')}
+              />,
+              toggleSetItem('trackSteps'),
+            ],
+          ] as const
+        }
+      />
+
       <Divider />
     </>
   );
@@ -388,29 +410,28 @@ function SharedFieldsEditor({
   const { t } = useTranslate();
   return (
     <>
-      <LabelledFormRow label={t('plan.notes.label')} icon="notesFill">
+      <FormRow>
         <TextInput
           mode="outlined"
+          label={t('plan.notes.label')}
           testID="exercise-notes"
           style={{ marginBottom: spacing[2] }}
           value={exercise.notes}
           onChangeText={(notes) => updateExercise({ notes })}
           multiline
         />
-      </LabelledFormRow>
-      <LabelledFormRow
-        label={t('generic.external_link.label')}
-        icon="publicFill"
-      >
+      </FormRow>
+      <FormRow>
         <TextInput
           mode="outlined"
           testID="exercise-link"
+          label={t('generic.external_link.label')}
           style={{ marginBottom: spacing[2] }}
           placeholder="https://"
           value={exercise.link}
           onChangeText={(link) => updateExercise({ link })}
         />
-      </LabelledFormRow>
+      </FormRow>
     </>
   );
 }
@@ -449,10 +470,7 @@ function CardioTargetEditor(props: {
   };
   return (
     <>
-      <LabelledFormRow
-        label={t('exercise.cardio_target.label')}
-        icon={'targetFill'}
-      >
+      <FormRow>
         <SegmentedButtons
           value={target.type}
           onValueChange={handleTypeChange}
@@ -471,7 +489,7 @@ function CardioTargetEditor(props: {
             },
           ]}
         />
-      </LabelledFormRow>
+      </FormRow>
 
       {matchCardioTarget(target, {
         distance: (t) => (
@@ -542,6 +560,8 @@ function WeightedExerciseEditor({
   updateExercise: (ex: Partial<ExerciseBlueprint>) => void;
 }) {
   const { t } = useTranslate();
+  const { colors } = useAppTheme();
+  const [restDialogOpen, setRestDialogOpen] = useState(false);
 
   const setSets = (value: number) =>
     updateExercise({ sets: Math.max(value, 1) });
@@ -563,55 +583,78 @@ function WeightedExerciseEditor({
           marginBlockEnd: spacing[2],
         }}
       >
-        <Card style={{ flex: 1 }} mode="contained">
-          <Card.Content>
-            <FixedIncrementer
-              label={t('exercise.sets.label')}
-              onValueChange={setSets}
-              value={exercise.sets}
-              testID="exercise-sets"
-            />
-          </Card.Content>
-        </Card>
-        <Card style={{ flex: 1 }} mode="contained">
-          <Card.Content>
-            <FixedIncrementer
-              label={t('exercise.reps.label')}
-              onValueChange={setReps}
-              value={exercise.repsPerSet}
-              testID="exercise-reps"
-            />
-          </Card.Content>
-        </Card>
+        <View style={{ flex: 1 }}>
+          <FixedIncrementer
+            label={t('exercise.sets.label')}
+            onValueChange={setSets}
+            value={exercise.sets}
+            testID="exercise-sets"
+          />
+        </View>
+        <View style={{ flex: 1 }}>
+          <FixedIncrementer
+            label={t('exercise.reps.label')}
+            onValueChange={setReps}
+            value={exercise.repsPerSet}
+            testID="exercise-reps"
+          />
+        </View>
       </View>
 
       <SharedFieldsEditor exercise={exercise} updateExercise={updateExercise} />
 
-      <LabelledFormRow
-        label={t('exercise.progressive_overload.label')}
-        icon="speedFill"
-      >
+      <FormRow>
         <EditableIncrementer
+          label={t('exercise.progressive_overload.label')}
           testID="exercise-auto-increase"
           value={exercise.weightIncreaseOnSuccess}
           onChange={setExerciseWeightIncrease}
         />
-      </LabelledFormRow>
+      </FormRow>
 
-      <RestEditorGroup
-        rest={exercise.restBetweenSets}
+      <RestEditorDialog
         onRestUpdated={(restBetweenSets) => updateExercise({ restBetweenSets })}
+        rest={exercise.restBetweenSets}
+        dialogOpen={restDialogOpen}
+        setDialogOpen={setRestDialogOpen}
       />
+      <FormRow>
+        <SegmentedList
+          items={[
+            <SegmentListFormElement
+              label={t('rest.rest.label')}
+              icon={'airlineSeatReclineExtraFill'}
+              right={
+                <RestFormat
+                  style={{ color: colors.onSurface }}
+                  rest={exercise.restBetweenSets}
+                />
+              }
+            />,
 
-      <ListSwitch
-        headline={t('workout.superset_next_exercise.button')}
-        value={exercise.supersetWithNext}
-        supportingText=""
-        testID="exercise-superset"
-        onValueChange={(supersetWithNext) =>
-          updateExercise({ supersetWithNext })
-        }
-      />
+            <SegmentedListSwitch
+              label={t('workout.superset_next_exercise.button')}
+              icon={'link'}
+              value={exercise.supersetWithNext}
+              testID="exercise-superset"
+              onValueChange={(supersetWithNext) =>
+                updateExercise({ supersetWithNext })
+              }
+            />,
+          ]}
+          renderItem={(i) => i}
+          onItemPress={(_, i) => {
+            match(i)
+              .with(0, () => setRestDialogOpen(true))
+              .with(1, () =>
+                updateExercise({
+                  supersetWithNext: !exercise.supersetWithNext,
+                }),
+              )
+              .run();
+          }}
+        />
+      </FormRow>
     </View>
   );
 }

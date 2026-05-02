@@ -27,7 +27,7 @@ export default function TouchableRipple({
   return (
     <GestureDetector gesture={gesture}>
       <NativeTouchableRipple
-        disabled={disabled!}
+        disabled={disabled}
         onPress={onPress ? () => {} : undefined!}
         // Disable long press since we should be using Holdable for this
         onLongPress={onLongPress || onPress ? () => {} : undefined!}

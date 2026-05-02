@@ -10,6 +10,7 @@ import { TextInput } from 'react-native-paper';
 interface EditableIncrementerProps {
   value: BigNumber;
   suffix?: string;
+  label?: string;
   onChange: (val: BigNumber) => void;
   disallowNegative?: boolean;
   testID?: string;
@@ -51,10 +52,11 @@ export default function EditableIncrementer(props: EditableIncrementerProps) {
       }}
     >
       <TextInput
-        testID={props.testID!}
+        testID={props.testID}
         mode="outlined"
         value={text}
         style={{ flex: 1 }}
+        label={props.label}
         inputMode={'decimal'}
         keyboardType={'decimal-pad'}
         onChangeText={handleTextChange}

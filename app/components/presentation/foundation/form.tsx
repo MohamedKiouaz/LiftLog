@@ -2,7 +2,7 @@ import { spacing } from '@/hooks/useAppTheme';
 import { ReactNode } from 'react';
 import { View } from 'react-native';
 
-export default function LabelledForm(props: { children: ReactNode }) {
+export default function Form(props: { children: ReactNode }) {
   return (
     <View
       style={{

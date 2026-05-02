@@ -55,8 +55,8 @@ export default function FullScreenDialog(props: FullScreenDialogProps) {
           >
             <Header
               onClose={onClose}
-              action={action!}
-              onAction={onAction!}
+              action={action}
+              onAction={onAction}
               title={title}
             />
             {props.noScroll ? (
@@ -72,7 +72,7 @@ export default function FullScreenDialog(props: FullScreenDialogProps) {
               </View>
             ) : (
               <FullHeightScrollView
-                avoidKeyboard={props.avoidKeyboard!}
+                avoidKeyboard={props.avoidKeyboard}
                 scrollStyle={{
                   padding: spacing.pageHorizontalMargin,
                 }}

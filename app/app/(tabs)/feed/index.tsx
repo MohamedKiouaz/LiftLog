@@ -59,7 +59,7 @@ export default function FeedIndexPage() {
           </TabScreen>
           <TabScreen
             label={t('feed.followers.title')}
-            badge={followRequestBadgeCount!}
+            badge={followRequestBadgeCount}
           >
             <ScrollProvider
               isScrolled={!!tabScrolls[activeTabIndex]}

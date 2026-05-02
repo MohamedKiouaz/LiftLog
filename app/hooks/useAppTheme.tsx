@@ -23,6 +23,7 @@ import {
 export const rounding = {
   roundedRectangleRadius: 10,
   roundedRectangleFocusRingRadius: 15,
+  segmentedBetweenRadius: 2,
 };
 
 export const spacing = {

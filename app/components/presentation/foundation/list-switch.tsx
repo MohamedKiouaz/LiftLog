@@ -17,19 +17,19 @@ export default function ListSwitch(props: ListSwitchProps) {
   const { colors } = useAppTheme();
   return (
     <List.Item
-      testID={props.testID!}
+      testID={props.testID}
       title={props.headline}
       style={{
         backgroundColor: props.focus ? colors.tertiary + '33' : undefined!,
       }}
       description={props.supportingText}
       onPress={() => props.onValueChange(!props.value)}
-      disabled={props.disabled!}
-      left={props.left!}
+      disabled={props.disabled}
+      left={props.left}
       right={() => (
         <Switch
           value={props.value}
-          disabled={props.disabled!}
+          disabled={props.disabled}
           onValueChange={props.onValueChange}
         />
       )}

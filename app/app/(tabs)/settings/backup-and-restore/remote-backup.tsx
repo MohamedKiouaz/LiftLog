@@ -1,6 +1,6 @@
 import EmptyInfo from '@/components/presentation/foundation/empty-info';
 import FullHeightScrollView from '@/components/layout/full-height-scroll-view';
-import LabelledForm from '@/components/presentation/foundation/labelled-form';
+import Form from '@/components/presentation/foundation/form';
 import LabelledFormRow from '@/components/presentation/foundation/labelled-form-row';
 import LimitedHtml from '@/components/presentation/foundation/limited-html';
 import ListSwitch from '@/components/presentation/foundation/list-switch';
@@ -98,7 +98,7 @@ export default function RemoteBackupPage() {
           </Button>
         </Card.Content>
       </Card>
-      <LabelledForm>
+      <Form>
         <LabelledFormRow label={t('backup.endpoint.label')} icon={'publicFill'}>
           <TextInput
             mode="outlined"
@@ -125,7 +125,7 @@ export default function RemoteBackupPage() {
           value={includeFeedAccountValue}
           onValueChange={setIncludeFeedAccount}
         />
-      </LabelledForm>
+      </Form>
       <View
         style={{
           flexDirection: 'row',

@@ -1,3 +1,4 @@
+import { FormRow } from '@/components/presentation/foundation/form-row';
 import { AppIconSource } from '@/components/presentation/foundation/ms-icon-source';
 import { SurfaceText } from '@/components/presentation/foundation/surface-text';
 import { spacing, useAppTheme } from '@/hooks/useAppTheme';
@@ -13,18 +14,23 @@ export default function LabelledFormRow(props: {
   noGap?: boolean;
 }) {
   const { colors } = useAppTheme();
-  const margin = props.undoFormPadding
-    ? { marginHorizontal: -spacing.pageHorizontalMargin }
+  const labelPadding = props.undoFormPadding
+    ? {
+        paddingHorizontal: spacing.pageHorizontalMargin,
+      }
     : {};
   return (
-    <View style={{ gap: props.noGap ? undefined! : spacing[3] }}>
+    <FormRow noGap={props.noGap} undoFormPadding={props.undoFormPadding}>
       <View
-        style={{ flexDirection: 'row', alignItems: 'center', gap: spacing[2] }}
+        style={[
+          { flexDirection: 'row', alignItems: 'center', gap: spacing[2] },
+          labelPadding,
+        ]}
       >
         <Icon source={props.icon as string} size={20} color={colors.primary} />
         <SurfaceText font="text-xl">{props.label}</SurfaceText>
       </View>
-      <View style={margin}>{props.children}</View>
-    </View>
+      <View>{props.children}</View>
+    </FormRow>
   );
 }

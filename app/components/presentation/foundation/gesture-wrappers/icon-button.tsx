@@ -35,7 +35,7 @@ export default function IconButton({
   return (
     <GestureDetector gesture={gesture}>
       <NativeIconButton
-        disabled={disabled!}
+        disabled={disabled}
         onPress={onPress ? () => {} : undefined!}
         onLongPress={onLongPress || onPress ? () => {} : undefined!}
         style={[

@@ -109,6 +109,10 @@ import { msAvgTime } from '@material-symbols-react-native/outlined-400/msAvgTime
 import { msAnchor } from '@material-symbols-react-native/outlined-400/msAnchor';
 import { msFunction } from '@material-symbols-react-native/outlined-400/msFunction';
 import { msHeartCheck } from '@material-symbols-react-native/outlined-400/msHeartCheck';
+import { msContentPasteSearch } from '@material-symbols-react-native/outlined-400/msContentPasteSearch';
+import { msLink } from '@material-symbols-react-native/outlined-400/msLink';
+import { msSteps } from '@material-symbols-react-native/outlined-400/msSteps';
+import { msElevation } from '@material-symbols-react-native/outlined-400/msElevation';
 
 // Importing these icons using the below methods causes android app to crash
 // import { msAdd, msArrowDownward } from '@material-symbols-react-native/outlined-400';
@@ -154,7 +158,11 @@ const MaterialSymbols = {
   promptSuggestion: msPromptSuggestion,
   send: msSend,
   bolt: msBolt,
+  link: msLink,
+  steps: msSteps,
+  elevation: msElevation,
   remove: msRemove,
+  contentPasteSearch: msContentPasteSearch,
   doNotDisturbOn: msDoNotDisturbOn,
   save: msSave,
   forum: msForum,

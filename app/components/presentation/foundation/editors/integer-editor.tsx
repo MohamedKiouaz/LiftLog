@@ -5,6 +5,7 @@ import { TextInput } from 'react-native-paper';
 interface IntegerEditorProps {
   value: number;
   onChange: (val: number) => void;
+  noUnderline?: boolean | undefined;
   style?: TextStyle;
   testID?: string;
 }
@@ -37,11 +38,12 @@ export function IntegerEditor(props: IntegerEditorProps) {
   }, [value, editorValue]);
   return (
     <TextInput
-      testID={props.testID!}
+      testID={props.testID}
       value={text}
       inputMode={'numeric'}
       keyboardType={'numeric'}
       onChangeText={handleTextChange}
+      underlineStyle={props.noUnderline ? { display: 'none' } : {}}
       selectTextOnFocus
       style={[props.style]}
       // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain

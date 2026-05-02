@@ -6,19 +6,23 @@ import { Duration } from '@js-joda/core';
 import { useTranslate } from '@tolgee/react';
 import { useState } from 'react';
 import { View } from 'react-native';
-import { SegmentedButtons } from 'react-native-paper';
 import { match } from 'ts-pattern';
-import LabelledFormRow from '@/components/presentation/foundation/labelled-form-row';
+import { Dialog, SegmentedButtons } from 'react-native-paper';
+import { Portal } from 'react-native-paper';
+import Button from '@/components/presentation/foundation/gesture-wrappers/button';
 
 type ButtonValues = 'short' | 'medium' | 'long' | 'custom';
 
 interface RestEditorGroupProps {
   rest: Rest;
   onRestUpdated: (rest: Rest) => void;
+  dialogOpen: boolean;
+  setDialogOpen: (open: boolean) => void;
 }
-export default function RestEditorGroup(props: RestEditorGroupProps) {
+export function RestEditorDialog(props: RestEditorGroupProps) {
   const { colors } = useAppTheme();
   const { t } = useTranslate();
+
   const { onRestUpdated, rest } = props;
   const [buttonValue, setButtonValue] = useState(
     match(rest)
@@ -70,36 +74,45 @@ export default function RestEditorGroup(props: RestEditorGroupProps) {
       </View>
     );
   return (
-    <LabelledFormRow
-      label={t('rest.rest.label')}
-      icon="airlineSeatReclineExtraFill"
-    >
-      <View style={{ width: '100%' }}>
-        <SegmentedButtons
-          style={{ width: '100%' }}
-          value={buttonValue}
-          onValueChange={(s) => handleValueChange(s as ButtonValues)}
-          buttons={[
-            {
-              value: 'short',
-              label: t('rest.short.label'),
-            },
-            {
-              value: 'medium',
-              label: t('rest.medium.label'),
-            },
-            {
-              value: 'long',
-              label: t('rest.long.label'),
-            },
-            {
-              value: 'custom',
-              label: t('generic.custom.label'),
-            },
-          ]}
-        />
-      </View>
-      {customView}
-    </LabelledFormRow>
+    <Portal>
+      <Dialog
+        visible={props.dialogOpen}
+        onDismiss={() => props.setDialogOpen(false)}
+      >
+        <Dialog.Content>
+          <View style={{ width: '100%' }}>
+            <SegmentedButtons
+              style={{ width: '100%' }}
+              value={buttonValue}
+              onValueChange={(s) => handleValueChange(s as ButtonValues)}
+              buttons={[
+                {
+                  value: 'short',
+                  label: t('rest.short.label'),
+                },
+                {
+                  value: 'medium',
+                  label: t('rest.medium.label'),
+                },
+                {
+                  value: 'long',
+                  label: t('rest.long.label'),
+                },
+                {
+                  value: 'custom',
+                  label: t('generic.custom.label'),
+                },
+              ]}
+            />
+          </View>
+          {customView}
+        </Dialog.Content>
+        <Dialog.Actions>
+          <Button onPress={() => props.setDialogOpen(false)}>
+            {t('generic.close.button')}
+          </Button>
+        </Dialog.Actions>
+      </Dialog>
+    </Portal>
   );
 }

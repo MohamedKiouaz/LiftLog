@@ -42,7 +42,7 @@ export function DecimalEditor(props: DecimalEditorProps) {
   }, [value, editorValue]);
   return (
     <TextInput
-      testID={props.testID!}
+      testID={props.testID}
       value={text}
       inputMode={'decimal'}
       keyboardType={'decimal-pad'}

@@ -12,7 +12,7 @@
       "@/*": ["./*"]
     },
     "types": ["vitest"],
-    "exactOptionalPropertyTypes": true
+    "exactOptionalPropertyTypes": false
   },
   "include": [
     "**/*.ts",

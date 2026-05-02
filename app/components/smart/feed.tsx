@@ -2,7 +2,7 @@ import CardActions from '@/components/presentation/foundation/card-actions';
 import ConfirmationDialog from '@/components/presentation/foundation/confirmation-dialog';
 import EmptyInfo from '@/components/presentation/foundation/empty-info';
 import FullScreenDialog from '@/components/presentation/foundation/full-screen-dialog';
-import LabelledForm from '@/components/presentation/foundation/labelled-form';
+import Form from '@/components/presentation/foundation/form';
 import LabelledFormRow from '@/components/presentation/foundation/labelled-form-row';
 import ListSwitch from '@/components/presentation/foundation/list-switch';
 import { Remote } from '@/components/presentation/foundation/remote';
@@ -200,7 +200,7 @@ function FeedProfileEditor({
           marginHorizontal: -spacing.pageHorizontalMargin,
         }}
       >
-        <LabelledForm>
+        <Form>
           <LabelledFormRow
             icon={'personFill'}
             label={t('feed.your_name.label')}
@@ -213,7 +213,7 @@ function FeedProfileEditor({
               onChangeText={(name) => updateProfile({ name })}
             />
           </LabelledFormRow>
-        </LabelledForm>
+        </Form>
         <List.Section>
           <ListSwitch
             testID="feed-publish-workouts-switch"

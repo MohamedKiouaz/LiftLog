@@ -1,15 +1,17 @@
-import { spacing, useAppTheme } from '@/hooks/useAppTheme';
+import Icon from '@/components/presentation/foundation/gesture-wrappers/icon';
+import { AppIconSource } from '@/components/presentation/foundation/ms-icon-source';
+import { rounding, spacing, useAppTheme } from '@/hooks/useAppTheme';
 import { useBottomSheetScrollableCreator } from '@gorhom/bottom-sheet';
 import { LegendList } from '@legendapp/list';
 import { ReactNode } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { Card } from 'react-native-paper';
+import { Card, Text } from 'react-native-paper';
 import { match } from 'ts-pattern';
 
 export function SegmentedList<T>(props: {
   renderItem: (item: T, index: number) => ReactNode;
-  onItemPress?: (item: T) => void;
+  onItemPress?: (item: T, index: number) => void;
   itemKey?: (item: T, index: number) => string;
   items: T[];
   scrollable?: boolean;
@@ -28,7 +30,7 @@ export function SegmentedList<T>(props: {
             key={itemKey(item, index)}
             isFirst={index === 0}
             isLast={index === props.items.length - 1}
-            onPress={onItemPress ? () => onItemPress(item) : undefined}
+            onPress={onItemPress ? () => onItemPress(item, index) : undefined}
           >
             {props.renderItem(item, index)}
           </SegmentedListItem>
@@ -52,12 +54,40 @@ export function SegmentedList<T>(props: {
           key={itemKey(item, index)}
           isFirst={index === 0}
           isLast={index === props.items.length - 1}
-          onPress={onItemPress ? () => onItemPress(item) : undefined}
+          onPress={onItemPress ? () => onItemPress(item, index) : undefined}
         >
           {props.renderItem(item, index)}
         </SegmentedListItem>
       )}
     />
+  );
+}
+
+export function SegmentListFormElement(props: {
+  label: string;
+  icon: AppIconSource;
+  right?: ReactNode | string;
+}) {
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      }}
+    >
+      <View
+        style={{ flexDirection: 'row', gap: spacing[2], alignItems: 'center' }}
+      >
+        <Icon size={20} source={props.icon} />
+        <Text variant="labelLarge">{props.label}</Text>
+      </View>
+      {typeof props.right === 'string' ? (
+        <Text variant="labelLarge">{props.right}</Text>
+      ) : (
+        props.right
+      )}
+    </View>
   );
 }
 
@@ -95,17 +125,17 @@ function SegmentedListItem(props: {
 const styles = StyleSheet.create({
   onlyItem: {},
   firstItem: {
-    borderBottomLeftRadius: 2,
-    borderBottomRightRadius: 2,
+    borderBottomLeftRadius: rounding.segmentedBetweenRadius,
+    borderBottomRightRadius: rounding.segmentedBetweenRadius,
   },
   middleItem: {
-    borderTopLeftRadius: 2,
-    borderTopRightRadius: 2,
-    borderBottomLeftRadius: 2,
-    borderBottomRightRadius: 2,
+    borderTopLeftRadius: rounding.segmentedBetweenRadius,
+    borderTopRightRadius: rounding.segmentedBetweenRadius,
+    borderBottomLeftRadius: rounding.segmentedBetweenRadius,
+    borderBottomRightRadius: rounding.segmentedBetweenRadius,
   },
   lastItem: {
-    borderTopLeftRadius: 2,
-    borderTopRightRadius: 2,
+    borderTopLeftRadius: rounding.segmentedBetweenRadius,
+    borderTopRightRadius: rounding.segmentedBetweenRadius,
   },
 });

@@ -46,7 +46,7 @@ export default function SelectButton<
       }}
       anchor={
         <Button
-          testID={testID!}
+          testID={testID}
           icon={open ? 'arrowDropUp' : 'arrowDropDown'}
           onPress={() => {
             setOpen(true);

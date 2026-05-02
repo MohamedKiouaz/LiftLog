@@ -29,20 +29,20 @@ export default function ListSwitch(props: ListSwitchProps) {
 
   return (
     <List.Item
-      testID={props.testID!}
+      testID={props.testID}
       title={props.headline}
       description={props.supportingText}
       onPress={() => props.onValueChange(!props.value)}
       style={{
         backgroundColor: props.focus ? colors.tertiary + '33' : undefined!,
       }}
-      disabled={props.disabled!}
-      left={props.left!}
+      disabled={props.disabled}
+      left={props.left}
       right={() =>
         delayRender && (
           <Switch
             value={props.value}
-            disabled={props.disabled!}
+            disabled={props.disabled}
             onValueChange={props.onValueChange}
           />
         )
