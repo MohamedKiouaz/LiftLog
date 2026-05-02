@@ -197,6 +197,7 @@ export default function ExerciseManager() {
             return (
               <ExerciseFilterer
                 onFilteredExerciseIdsChange={setFilteredExerciseIds}
+                onSuggestedNewExercise={() => {}}
               />
             );
           }

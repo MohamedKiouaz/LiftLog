@@ -24,7 +24,11 @@ import {
   WeightedExerciseBlueprintPOJO,
 } from '@/models/blueprint-models';
 import { useAppSelector, useAppSelectorWithArg } from '@/store';
-import { selectExerciseById, selectExerciseIds } from '@/store/stored-sessions';
+import {
+  selectExerciseById,
+  selectExerciseIds,
+  updateExercise,
+} from '@/store/stored-sessions';
 import { assertUnreachable } from '@/utils/assert-unreachable';
 import BottomSheet, {
   useBottomSheetScrollableCreator,
@@ -44,6 +48,8 @@ import {
 import { match, P } from 'ts-pattern';
 import { LegendList } from '@legendapp/list';
 import { ExerciseDescriptor } from '@/models/exercise-models';
+import { useDispatch } from 'react-redux';
+import { uuid } from '@/utils/uuid';
 
 interface ExerciseEditorProps {
   exercise: ExerciseBlueprint;
@@ -58,15 +64,20 @@ export function ExerciseEditor(props: ExerciseEditorProps) {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const BottomSheetScrollView = useBottomSheetScrollableCreator();
   const selectExerciseFromSearch = (ex: ExerciseDescriptor) => {
-    updateExercise({ name: ex.name, notes: ex.instructions });
+    updateExercise({ name: ex.name });
+    setFilteredExerciseIds(exerciseIds);
+    setSuggestedNewExercise('NONE');
     bottomSheetRef.current?.close();
   };
 
   const [bottomSheetShown, setBottomSheetShown] = useState(false);
   const [filteredExerciseIds, setFilteredExerciseIds] = useState(exerciseIds);
+  const [suggestedNewExercise, setSuggestedNewExercise] = useState<
+    ExerciseDescriptor | 'NONE'
+  >('NONE');
   const exerciseListItems = useMemo(
-    () => ['filter', ...filteredExerciseIds],
-    [filteredExerciseIds],
+    () => ['filter', suggestedNewExercise, ...filteredExerciseIds] as const,
+    [filteredExerciseIds, suggestedNewExercise],
   );
   const { t } = useTranslate();
   const { exercise: propsExercise, updateExercise: updatePropsExercise } =
@@ -145,25 +156,18 @@ export function ExerciseEditor(props: ExerciseEditorProps) {
             onValueChange={handleTypeChange}
           />
         </LabelledFormRow>
-        <LabelledFormRow label={t('exercise.name.label')} icon="infoFill">
-          <TextInput
-            testID="exercise-name"
+        <LabelledFormRow label={t('exercise.exercise.label')} icon="infoFill">
+          <Button
             mode="outlined"
-            style={{ marginBottom: spacing[2] }}
-            value={exercise.name}
-            onChangeText={(name) => updateExercise({ name })}
-            selectTextOnFocus={true}
-            right={
-              <TextInput.Icon
-                icon="search"
-                onPress={() => {
-                  setBottomSheetShown(true);
-                  Keyboard.dismiss();
-                  bottomSheetRef.current?.expand();
-                }}
-              />
-            }
-          />
+            icon={'search'}
+            onPress={() => {
+              setBottomSheetShown(true);
+              Keyboard.dismiss();
+              bottomSheetRef.current?.expand();
+            }}
+          >
+            {exercise.name}
+          </Button>
         </LabelledFormRow>
         {exerciseEditor}
       </LabelledForm>
@@ -177,19 +181,36 @@ export function ExerciseEditor(props: ExerciseEditorProps) {
           <LegendList
             data={exerciseListItems}
             renderScrollComponent={BottomSheetScrollView}
-            getItemType={(_, index) => (index === 0 ? 'filters' : 'exercise')}
-            keyExtractor={(item, index) => (index === 0 ? 'filters' : item)}
+            getItemType={(_, index) =>
+              index === 0 ? 'filters' : index === 1 ? 'suggest' : 'exercise'
+            }
+            keyExtractor={(item, index) =>
+              index === 0
+                ? 'filters'
+                : index === 1
+                  ? 'suggest'
+                  : (item as string)
+            }
             renderItem={(i) => {
               if (i.index === 0) {
                 return (
                   <ExerciseFilterer
+                    onSuggestedNewExercise={setSuggestedNewExercise}
                     onFilteredExerciseIdsChange={setFilteredExerciseIds}
                   />
                 );
               }
+              if (i.index === 1) {
+                return i.item !== 'NONE' ? (
+                  <SuggestedExerciseSearchListItem
+                    exercise={i.item as ExerciseDescriptor}
+                    onPress={selectExerciseFromSearch}
+                  />
+                ) : undefined;
+              }
               return (
-                <ExerciseSearchListItem
-                  exerciseId={i.item}
+                <ExerciseIdSearchListItem
+                  exerciseId={i.item as string}
                   onPress={selectExerciseFromSearch}
                 />
               );
@@ -201,13 +222,34 @@ export function ExerciseEditor(props: ExerciseEditorProps) {
   );
 }
 
-function ExerciseSearchListItem(props: {
+function ExerciseIdSearchListItem(props: {
   exerciseId: string;
   onPress: (exercise: ExerciseDescriptor) => void;
 }) {
   const exercise = useAppSelectorWithArg(selectExerciseById, props.exerciseId);
   return (
     <List.Item title={exercise.name} onPress={() => props.onPress(exercise)} />
+  );
+}
+
+function SuggestedExerciseSearchListItem(props: {
+  exercise: ExerciseDescriptor;
+  onPress: (exercise: ExerciseDescriptor) => void;
+}) {
+  const dispatch = useDispatch();
+  return (
+    <View style={{ padding: spacing.pageHorizontalMargin }}>
+      <Button
+        icon={'plus'}
+        mode="outlined"
+        onPress={() => {
+          dispatch(updateExercise({ id: uuid(), exercise: props.exercise }));
+          props.onPress(props.exercise);
+        }}
+      >
+        Add {props.exercise.name}
+      </Button>
+    </View>
   );
 }
 

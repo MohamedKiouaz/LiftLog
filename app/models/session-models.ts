@@ -191,12 +191,12 @@ export class Session {
 
   with(other: Partial<Session>) {
     return new Session(
-      'id' in other ? other.id : this.id,
-      'blueprint' in other ? other.blueprint : this.blueprint,
+      'id' in other ? other.id! : this.id,
+      'blueprint' in other ? other.blueprint! : this.blueprint,
       'recordedExercises' in other
-        ? other.recordedExercises
+        ? other.recordedExercises!
         : this.recordedExercises,
-      'date' in other ? other.date : this.date,
+      'date' in other ? other.date! : this.date,
       'bodyweight' in other ? other.bodyweight! : this.bodyweight,
     );
   }
@@ -875,10 +875,10 @@ export class RecordedWeightedExercise {
   with(other: Partial<RecordedWeightedExercisePOJO>) {
     return new RecordedWeightedExercise(
       'blueprint' in other
-        ? WeightedExerciseBlueprint.fromPOJO(other.blueprint)
+        ? WeightedExerciseBlueprint.fromPOJO(other.blueprint!)
         : this.blueprint,
       'potentialSets' in other
-        ? other.potentialSets.map((x) => PotentialSet.fromPOJO(x))
+        ? other.potentialSets!.map((x) => PotentialSet.fromPOJO(x))
         : this.potentialSets,
       'notes' in other ? other.notes : this.notes,
     );
@@ -1035,9 +1035,9 @@ export class RecordedSet {
 
   with(other: Partial<RecordedSet>): RecordedSet {
     return new RecordedSet(
-      'repsCompleted' in other ? other.repsCompleted : this.repsCompleted,
+      'repsCompleted' in other ? other.repsCompleted! : this.repsCompleted,
       'completionDateTime' in other
-        ? other.completionDateTime
+        ? other.completionDateTime!
         : this.completionDateTime,
     );
   }
@@ -1115,7 +1115,7 @@ export class PotentialSet {
   with(other: Partial<PotentialSet>): PotentialSet {
     return new PotentialSet(
       'set' in other ? other.set : this.set,
-      'weight' in other ? other.weight : this.weight,
+      'weight' in other ? other.weight! : this.weight,
     );
   }
 

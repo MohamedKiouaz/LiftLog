@@ -70,8 +70,6 @@ export function MaterialBottomTabs({
                 dismissTo(('/' + route.name) as '/');
               } else {
                 // Not focused: navigate normally
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-expect-error
                 navigation.dispatch({
                   ...CommonActions.navigate(route.name, route.params),
                   target: state.key, // target the tab navigator

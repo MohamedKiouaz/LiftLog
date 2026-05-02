@@ -1,6 +1,7 @@
 import {
   ExerciseBlueprint,
   ExerciseBlueprintPOJO,
+  fromExerciseBlueprintPOJO,
   SessionBlueprint,
   SessionBlueprintPOJO,
 } from '@/models/blueprint-models';
@@ -8,10 +9,12 @@ import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 const initialState: SessionEditorState = {
   sessionBlueprint: undefined,
+  editingExerciseIndex: undefined,
 };
 
 export type SessionEditorState = {
   sessionBlueprint: SessionBlueprintPOJO | undefined;
+  editingExerciseIndex: number | undefined;
 };
 
 const sessionEditorSlice = createSlice({
@@ -38,6 +41,9 @@ const sessionEditorSlice = createSlice({
       if (state.sessionBlueprint) {
         state.sessionBlueprint.exercises.push(action.payload.toPOJO());
       }
+    },
+    setEditingExerciseIndex(state, action: PayloadAction<number | undefined>) {
+      state.editingExerciseIndex = action.payload;
     },
     removeExercise(state, action: PayloadAction<ExerciseBlueprint>) {
       if (state.sessionBlueprint) {
@@ -103,6 +109,13 @@ const sessionEditorSlice = createSlice({
       (state: SessionEditorState) => state.sessionBlueprint,
       (x) => (x ? SessionBlueprint.fromPOJO(x) : undefined),
     ),
+    selectEditingExercise: createSelector(
+      (state: SessionEditorState) =>
+        state.editingExerciseIndex !== undefined &&
+        state.sessionBlueprint?.exercises[state.editingExerciseIndex],
+      (exercise) =>
+        exercise ? fromExerciseBlueprintPOJO(exercise) : undefined,
+    ),
   },
 });
 
@@ -111,12 +124,14 @@ export const {
   moveExerciseDown,
   moveExerciseUp,
   removeExercise,
+  setEditingExerciseIndex,
   setEditingSession,
   setEditingSessionName,
   setEditingSessionNotes,
   updateSessionExercise,
 } = sessionEditorSlice.actions;
 
-export const { selectCurrentlyEditingSession } = sessionEditorSlice.selectors;
+export const { selectCurrentlyEditingSession, selectEditingExercise } =
+  sessionEditorSlice.selectors;
 
 export const sessionEditorReducer = sessionEditorSlice.reducer;

@@ -1,10 +1,8 @@
 import ConfirmationDialog from '@/components/presentation/foundation/confirmation-dialog';
 import EmptyInfo from '@/components/presentation/foundation/empty-info';
 import ExerciseBlueprintSummary from '@/components/presentation/workout-editor/exercise-blueprint-summary';
-import { ExerciseEditor } from '@/components/presentation/workout-editor/exercise-editor';
 import FloatingBottomContainer from '@/components/presentation/foundation/floating-bottom-container';
 import FullHeightScrollView from '@/components/layout/full-height-scroll-view';
-import FullScreenDialog from '@/components/presentation/foundation/full-screen-dialog';
 import ItemList from '@/components/presentation/foundation/item-list';
 import LabelledForm from '@/components/presentation/foundation/labelled-form';
 import LabelledFormRow from '@/components/presentation/foundation/labelled-form-row';
@@ -25,13 +23,19 @@ import {
   moveExerciseUp,
   removeExercise,
   selectCurrentlyEditingSession,
+  setEditingExerciseIndex,
   setEditingSessionName,
   setEditingSessionNotes,
-  updateSessionExercise,
 } from '@/store/session-editor';
 import { T, useTranslate } from '@tolgee/react';
 import BigNumber from 'bignumber.js';
-import { Redirect, Stack, useLocalSearchParams } from 'expo-router';
+import {
+  Redirect,
+  Stack,
+  useFocusEffect,
+  useLocalSearchParams,
+  useRouter,
+} from 'expo-router';
 import { useState } from 'react';
 import { Card, FAB, TextInput } from 'react-native-paper';
 import { useDispatch, useStore } from 'react-redux';
@@ -69,11 +73,18 @@ function SessionEditor({
   const [selectedExercise, setSelectedExercise] = useState<
     ExerciseBlueprint | undefined
   >(undefined);
-  const [selectedExerciseIndex, setSelectedExerciseIndex] = useState<
-    number | undefined
-  >(undefined);
   const [isRemoveOpen, setIsRemoveOpen] = useState(false);
-  const [isEditOpen, setIsEditOpen] = useState(false);
+  const exerciseCount = useAppSelector(
+    (x) => x.sessionEditor.sessionBlueprint?.exercises?.length ?? 0,
+  );
+  const { push } = useRouter();
+  const openExerciseEditor = (exerciseIndex: number | undefined) => {
+    dispatch(setEditingExerciseIndex(exerciseIndex));
+
+    push(
+      `/settings/manage-workouts/${programId}/manage-session/${sessionIndex}/exercise`,
+    );
+  };
   const { t } = useTranslate();
   const saveSession = () => {
     // We need to get it again, as we likely dispatched, but the 'session' var will not have updated yet
@@ -87,21 +98,25 @@ function SessionEditor({
       }),
     );
   };
+  useFocusEffect(() => {
+    saveSession();
+  });
   const beginAddExercise = () => {
-    setSelectedExerciseIndex(undefined);
-    setSelectedExercise(
-      WeightedExerciseBlueprint.fromPOJO({
-        name: `Exercise ${session.exercises.length + 1}`,
-        repsPerSet: 10,
-        sets: 3,
-        weightIncreaseOnSuccess: BigNumber('2.5'),
-        link: '',
-        notes: '',
-        restBetweenSets: Rest.medium,
-        supersetWithNext: false,
-      }),
+    dispatch(
+      addExercise(
+        WeightedExerciseBlueprint.fromPOJO({
+          name: `Exercise ${session.exercises.length + 1}`,
+          repsPerSet: 10,
+          sets: 3,
+          weightIncreaseOnSuccess: BigNumber('2.5'),
+          link: '',
+          notes: '',
+          restBetweenSets: Rest.medium,
+          supersetWithNext: false,
+        }),
+      ),
     );
-    setIsEditOpen(true);
+    openExerciseEditor(exerciseCount);
   };
   const setName = (name: string) => {
     dispatch(setEditingSessionName(name));
@@ -110,23 +125,6 @@ function SessionEditor({
   const setNotes = (notes: string) => {
     dispatch(setEditingSessionNotes(notes));
     saveSession();
-  };
-  const saveExercise = () => {
-    if (!selectedExercise) {
-      return;
-    }
-    if (selectedExerciseIndex !== undefined) {
-      dispatch(
-        updateSessionExercise({
-          index: selectedExerciseIndex,
-          exercise: selectedExercise,
-        }),
-      );
-    } else {
-      dispatch(addExercise(selectedExercise));
-    }
-    saveSession();
-    setIsEditOpen(false);
   };
 
   const floatingBottomContainer = (
@@ -189,14 +187,11 @@ function SessionEditor({
                 sessionIndex={sessionIndex}
                 programId={programId}
                 beginEdit={() => {
-                  setSelectedExerciseIndex(index);
-                  setSelectedExercise(blueprint);
-                  setIsEditOpen(true);
+                  openExerciseEditor(index);
                 }}
                 beginRemove={() => {
                   setSelectedExercise(blueprint);
                   setIsRemoveOpen(true);
-                  setSelectedExerciseIndex(index);
                 }}
                 saveSession={saveSession}
               />
@@ -204,25 +199,6 @@ function SessionEditor({
           />
         </LabelledFormRow>
       </LabelledForm>
-      <FullScreenDialog
-        avoidKeyboard
-        open={!!selectedExercise && isEditOpen}
-        onClose={() => setIsEditOpen(false)}
-        title={
-          selectedExerciseIndex === undefined
-            ? t('exercise.add.title')
-            : t('exercise.edit.title')
-        }
-        action={t('generic.save.button')}
-        onAction={saveExercise}
-      >
-        {selectedExercise && (
-          <ExerciseEditor
-            exercise={selectedExercise}
-            updateExercise={setSelectedExercise}
-          />
-        )}
-      </FullScreenDialog>
       <ConfirmationDialog
         headline={t('exercise.remove.confirm.title')}
         onOk={() => {

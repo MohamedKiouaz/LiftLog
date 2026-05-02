@@ -29,6 +29,7 @@ export default function ExerciseSearchAndFilters({
         placeholder={t('generic.search.button')}
         value={searchText}
         onChangeText={setSearchText}
+        autoCapitalize={'words'}
         autoCorrect={false}
         style={{ marginHorizontal: spacing.pageHorizontalMargin }}
         testID="exercise-search-input"
