@@ -427,7 +427,7 @@ export function fromRecordedExercisePOJO(
     .exhaustive();
 }
 
-function fromRecordedExerciseJSON(
+export function fromRecordedExerciseJSON(
   pojo: RecordedExerciseJSON,
 ): RecordedExercise {
   return match(pojo)

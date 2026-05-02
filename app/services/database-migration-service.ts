@@ -21,6 +21,10 @@ import {
   importExercises,
   importExercisesDataMigration,
 } from './data-migrations/import-exercises';
+import {
+  importExercisesFromWorkouts,
+  importExercisesFromWorkoutsDataMigration,
+} from '@/services/data-migrations/import-exercises-from-workouts';
 
 export class DatabaseMigrationService {
   // DO NOT Add a dependency to getState here, it gets messy quick
@@ -45,6 +49,9 @@ export class DatabaseMigrationService {
     }
     if (!dataMigrationsRun.includes(importExercisesDataMigration)) {
       await importExercises(this.db, this.keyValueStore);
+    }
+    if (!dataMigrationsRun.includes(importExercisesFromWorkoutsDataMigration)) {
+      await importExercisesFromWorkouts(this.db);
     }
 
     // We always want to update all entities to the latest version
