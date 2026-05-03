@@ -1,6 +1,6 @@
+import { Switch } from '@/components/presentation/foundation/gesture-wrappers/switch';
 import { AppIconSource } from '@/components/presentation/foundation/ms-icon-source';
 import { SegmentListFormElement } from '@/components/presentation/foundation/segmented-list';
-import { Switch } from 'react-native-paper';
 
 interface ListSwitchProps {
   label: string;
@@ -16,7 +16,6 @@ export function SegmentedListSwitch(props: ListSwitchProps) {
     <SegmentListFormElement
       label={props.label}
       icon={props.icon}
-      // onPress={() => props.onValueChange(!props.value)}
       right={
         <Switch
           value={props.value}

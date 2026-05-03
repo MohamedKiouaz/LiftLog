@@ -1,6 +1,7 @@
+import { Switch } from '@/components/presentation/foundation/gesture-wrappers/switch';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { ReactNode } from 'react';
-import { List, ListItemProps, Switch } from 'react-native-paper';
+import { List, ListItemProps } from 'react-native-paper';
 
 interface ListSwitchProps {
   headline: ReactNode;
