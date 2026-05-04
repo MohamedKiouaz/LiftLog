@@ -36,6 +36,7 @@ export function applyProgramEffects(addEffect: AddEffectFn) {
         cancelActiveListeners,
         dispatch,
         extra: { keyValueStore, logger, db },
+        throwIfCancelled,
       },
     ) => {
       const start = performance.now();
@@ -66,7 +67,7 @@ export function applyProgramEffects(addEffect: AddEffectFn) {
           }
           dispatch(savePlan({ programId: id, programBlueprint: program }));
         }
-        await persistPrograms(getState(), db, logger);
+        await persistPrograms(getState(), db, logger, throwIfCancelled);
         await keyValueStore.setItem(builtInProgramsStorageKey, 'true');
       }
       if (!activePlanId || !getState().program.savedPrograms[activePlanId]) {
@@ -86,7 +87,17 @@ export function applyProgramEffects(addEffect: AddEffectFn) {
   // Persist after changes
   addEffect(
     undefined,
-    async (_, { originalState, stateAfterReduce, extra: { db, logger } }) => {
+    async (
+      _,
+      {
+        originalState,
+        stateAfterReduce,
+        extra: { db, logger },
+        throwIfCancelled,
+        cancelActiveListeners,
+      },
+    ) => {
+      cancelActiveListeners();
       const start = performance.now();
       const shouldPersist =
         stateAfterReduce.program.isHydrated &&
@@ -95,7 +106,7 @@ export function applyProgramEffects(addEffect: AddEffectFn) {
           stateAfterReduce.program.savedPrograms !==
             originalState.program.savedPrograms);
       if (shouldPersist) {
-        await persistPrograms(stateAfterReduce, db, logger);
+        await persistPrograms(stateAfterReduce, db, logger, throwIfCancelled);
         const end = performance.now();
         logger.info(
           `Persist program state effect took ${(end - start).toFixed(2)} ms`,
@@ -153,9 +164,11 @@ async function persistPrograms(
   stateAfterReduce: RootState,
   db: ExpoSQLiteDatabase,
   logger: Logger,
+  throwIfCancelled: () => void,
 ) {
   try {
     await db.transaction(async (tx) => {
+      throwIfCancelled();
       await tx.delete(programsSchema);
       await tx.insert(programsSchema).values(
         Object.entries(stateAfterReduce.program.savedPrograms).map(
@@ -167,6 +180,7 @@ async function persistPrograms(
           }),
         ),
       );
+      throwIfCancelled();
     });
   } catch (e) {
     logger.error('Failed to persist program state', e);
