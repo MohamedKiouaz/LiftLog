@@ -114,7 +114,7 @@ function SegmentedListItem(props: {
     <Card
       mode="elevated"
       elevation={0}
-      style={[{ backgroundColor: colors.surfaceContainer }, style]}
+      style={[{ backgroundColor: colors.surfaceContainerHigh }, style]}
       onPress={props.onPress}
     >
       <Card.Content>{props.children}</Card.Content>
