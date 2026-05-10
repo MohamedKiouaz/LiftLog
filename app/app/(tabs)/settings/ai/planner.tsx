@@ -25,11 +25,6 @@ import {
   selectIsLoadingAiPlannerMessage,
   stopAiGenerator,
 } from '@/store/ai-planner';
-import Animated, {
-  ZoomIn,
-  ZoomInLeft,
-  ZoomInRight,
-} from 'react-native-reanimated';
 import { uuid } from '@/utils/uuid';
 import { useScroll } from '@/hooks/useScrollListener';
 import SessionSummary from '@/components/presentation/summary/session-summary';
@@ -171,7 +166,7 @@ function ChatBubble(props: {
   sameSenderAbove: boolean;
   isLastMessage: boolean;
 }) {
-  const { message, sameSenderBelow, sameSenderAbove, isLastMessage } = props;
+  const { message, sameSenderBelow, sameSenderAbove } = props;
   const isUser = message.from === 'User';
   const { colors } = useAppTheme();
 
@@ -180,7 +175,6 @@ function ChatBubble(props: {
 
   const topDynamicRadius = sameSenderAbove ? smallRadius : normalRadius;
   const bottomDynamicRadius = sameSenderBelow ? smallRadius : normalRadius;
-  const zoom = isUser ? ZoomInRight : ZoomInLeft;
   return (
     <View
       style={{
@@ -188,12 +182,7 @@ function ChatBubble(props: {
         justifyContent: message.from === 'User' ? 'flex-end' : 'flex-start',
       }}
     >
-      <Animated.View
-        entering={
-          isLastMessage
-            ? zoom.springify().damping(18).stiffness(150).duration(400)
-            : undefined!
-        }
+      <View
         style={{
           backgroundColor: isUser
             ? colors.primary
@@ -216,7 +205,7 @@ function ChatBubble(props: {
           .with({ type: 'purchasePro' }, () => <ProPrompt />)
           .exhaustive()}
         {message.isLoading && <ChatLoader />}
-      </Animated.View>
+      </View>
     </View>
   );
 }
@@ -286,10 +275,7 @@ function PlanMessage({
         </Fragment>
       ))}
       {!message.isLoading && (
-        <Animated.View
-          entering={ZoomIn.springify().duration(150)}
-          style={{ alignSelf: 'flex-end' }}
-        >
+        <View style={{ alignSelf: 'flex-end' }}>
           <Button
             mode="contained"
             icon={'assignmentAdd'}
@@ -297,7 +283,7 @@ function PlanMessage({
           >
             <T keyName="plan.save_new.button" />
           </Button>
-        </Animated.View>
+        </View>
       )}
     </View>
   );

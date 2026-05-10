@@ -1,12 +1,11 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import { View, LayoutChangeEvent, StyleSheet } from 'react-native';
-import Animated, {
-  useSharedValue,
+import {
+  View,
+  LayoutChangeEvent,
+  StyleSheet,
+  Animated,
   Easing,
-  useAnimatedStyle,
-  withTiming,
-  runOnJS,
-} from 'react-native-reanimated';
+} from 'react-native';
 
 type AccordionItemProps = {
   isExpanded: boolean;
@@ -27,49 +26,40 @@ export function AccordionItem({
   style,
   unexpandedHeight = 0,
 }: AccordionItemProps) {
-  const contentHeight = useSharedValue(unexpandedHeight); // measured height of children
-  const animatedHeight = useSharedValue(unexpandedHeight);
+  const animatedHeight = useRef(new Animated.Value(unexpandedHeight)).current;
+  const measuredHeightRef = useRef(unexpandedHeight);
+
   const animate = useCallback(() => {
     const targetHeight = isExpanded
       ? measuredHeightRef.current
       : unexpandedHeight;
-    animatedHeight.set(
-      withTiming(
-        targetHeight,
-        { duration, easing: Easing.cubic },
-        (isFinished) => {
-          if (isFinished && onToggled) {
-            runOnJS(onToggled)(isExpanded);
-          }
-        },
-      ),
-    );
+    Animated.timing(animatedHeight, {
+      toValue: targetHeight,
+      duration,
+      easing: Easing.cubic,
+      useNativeDriver: false,
+    }).start(({ finished }) => {
+      if (finished && onToggled) {
+        onToggled(isExpanded);
+      }
+    });
   }, [isExpanded, duration, onToggled, animatedHeight, unexpandedHeight]);
 
-  const measuredHeightRef = useRef(unexpandedHeight);
-
-  // Animate height when isExpanded changes
   useEffect(() => animate(), [animate]);
 
-  // Animated style for the container
-  const containerStyle = useAnimatedStyle(() => ({
-    height: animatedHeight.value,
-    overflow: 'hidden',
-  }));
-
-  // Measure children height once
   const onLayoutContent = (e: LayoutChangeEvent) => {
     const height = e.nativeEvent.layout.height;
     measuredHeightRef.current = height;
-    contentHeight.value = height;
     if (isExpanded && startsExpanded) {
-      animatedHeight.set(height);
+      animatedHeight.setValue(height);
     }
     animate();
   };
 
   return (
-    <Animated.View style={[containerStyle, style]}>
+    <Animated.View
+      style={[{ height: animatedHeight, overflow: 'hidden' }, style]}
+    >
       <View style={styles.content} onLayout={onLayoutContent}>
         {children}
       </View>

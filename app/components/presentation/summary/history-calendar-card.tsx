@@ -5,18 +5,17 @@ import { useAppSelector } from '@/store';
 import { getDateOnDay } from '@/utils/format-date';
 import { DayOfWeek, LocalDate, Year, YearMonth } from '@js-joda/core';
 import Enumerable from 'linq';
-import { I18nManager, View } from 'react-native';
+import { Animated, Easing, I18nManager, View } from 'react-native';
 import { Card } from 'react-native-paper';
 import IconButton from '@/components/presentation/foundation/gesture-wrappers/icon-button';
 import TouchableRipple from '@/components/presentation/foundation/gesture-wrappers/touchable-ripple';
-import Animated, { ZoomIn } from 'react-native-reanimated';
-import { ReactNode } from 'react';
+import { ReactNode, useRef } from 'react';
 import { useFormatDate } from '@/hooks/useFormatDate';
+import { useMountEffect } from '@/hooks/useMountEffect';
 
 interface HistoryCalendarCardProps {
   currentYearMonth: YearMonth;
   sessions: Session[];
-
   onMonthChange: (date: YearMonth) => void;
   onDateSelect: (date: LocalDate) => void;
   onSessionSelect: (Session: Session) => void;
@@ -53,12 +52,8 @@ export default function HistoryCalendarCard({
     x.date.toString(),
   );
 
-  const previousMonth = () => {
-    onMonthChange(currentYearMonth.minusMonths(1));
-  };
-  const nextMonth = () => {
-    onMonthChange(currentYearMonth.plusMonths(1));
-  };
+  const previousMonth = () => onMonthChange(currentYearMonth.minusMonths(1));
+  const nextMonth = () => onMonthChange(currentYearMonth.plusMonths(1));
 
   const handleDayPress = (date: LocalDate) => {
     const sessionsForDate = sessionsByDate.get(date.toString());
@@ -68,6 +63,7 @@ export default function HistoryCalendarCard({
       onDateSelect(date);
     }
   };
+
   const handleDayLongPress = (date: LocalDate) => {
     const sessionsForDate = sessionsByDate.get(date.toString());
     if (sessionsForDate.any()) {
@@ -80,7 +76,7 @@ export default function HistoryCalendarCard({
       <View style={{ flex: 1, marginVertical: spacing[2] }}>
         <IconButton
           testID="calendar-nav-previous-month"
-          icon={'chevronLeft'}
+          icon="chevronLeft"
           onPress={previousMonth}
         />
       </View>
@@ -102,11 +98,10 @@ export default function HistoryCalendarCard({
           })}
         </SurfaceText>
       </View>
-
       <View style={{ flex: 1, marginVertical: spacing[2] }}>
         <IconButton
           testID="calendar-nav-next-month"
-          icon={'chevronRight'}
+          icon="chevronRight"
           onPress={nextMonth}
           disabled={disableNextMonth}
         />
@@ -119,18 +114,10 @@ export default function HistoryCalendarCard({
       {Array.from({ length: 7 }, (_, offset) => {
         const dayOfWeek = (offset + firstDayOfWeek.ordinal()) % 7;
         return (
-          <View
-            style={{
-              flex: 1,
-            }}
-            key={dayOfWeek}
-          >
+          <View style={{ flex: 1 }} key={dayOfWeek}>
             <SurfaceText
               key={dayOfWeek}
-              style={{
-                marginBottom: spacing[2],
-                textAlign: 'center',
-              }}
+              style={{ marginBottom: spacing[2], textAlign: 'center' }}
             >
               {formatDate(getDateOnDay(DayOfWeek.of(dayOfWeek + 1)), {
                 weekday: 'short',
@@ -141,7 +128,9 @@ export default function HistoryCalendarCard({
       })}
     </ForceLTRRow>
   );
+
   let dateEnterDelay = 0;
+
   const daysFromPreviousMonth = Array.from(
     { length: numberOfDaysToShowFromPreviousMonth },
     (_, offset) => {
@@ -161,9 +150,7 @@ export default function HistoryCalendarCard({
   );
 
   const daysInMonth = Array.from(
-    {
-      length: firstDayOfMonth.lengthOfMonth(),
-    },
+    { length: firstDayOfMonth.lengthOfMonth() },
     (_, i) => {
       const date = firstDayOfMonth.withDayOfMonth(i + 1);
       return (
@@ -196,13 +183,12 @@ export default function HistoryCalendarCard({
       );
     },
   );
+
   const daysInSections = [daysFromPreviousMonth, daysInMonth, daysFromNextMonth]
     .flat()
     .reduce(
       (acc, cur) => {
-        if (acc[acc.length - 1].length === 7) {
-          acc.push([]);
-        }
+        if (acc[acc.length - 1].length === 7) acc.push([]);
         acc[acc.length - 1].push(cur);
         return acc;
       },
@@ -213,11 +199,7 @@ export default function HistoryCalendarCard({
     <Card mode="contained">
       <Card.Content>
         <View
-          style={{
-            justifyContent: 'center',
-            alignItems: 'stretch',
-            flex: 3,
-          }}
+          style={{ justifyContent: 'center', alignItems: 'stretch', flex: 3 }}
         >
           {navButtons}
           {dayHeaders}
@@ -243,25 +225,35 @@ function HistoryCalendarDay(props: {
     props.day.equals(LocalDate.now()) && !hasSessions;
   const { colors } = useAppTheme();
   const formatDate = useFormatDate();
+
+  const anim = useRef(new Animated.Value(0)).current;
+
+  useMountEffect(() => {
+    Animated.timing(anim, {
+      toValue: 1,
+      duration: 150,
+      delay: props.delayEntranceAnimMs,
+      easing: Easing.out(Easing.back(1.5)),
+      useNativeDriver: true,
+    }).start();
+  });
+
   return (
     <Animated.View
-      entering={ZoomIn.delay(props.delayEntranceAnimMs)}
       style={{
         flex: 1,
         borderRadius: 1000,
         overflow: 'hidden',
         alignItems: 'center',
+        opacity: anim,
+        transform: [{ scale: anim }],
       }}
     >
       <TouchableRipple
         onPress={props.onPress}
         onLongPress={props.onLongPress}
         disabled={isFuture}
-        style={{
-          padding: spacing[1],
-          borderRadius: 1000,
-          overflow: 'hidden',
-        }}
+        style={{ padding: spacing[1], borderRadius: 1000, overflow: 'hidden' }}
       >
         <View
           style={{
@@ -289,10 +281,6 @@ function HistoryCalendarDay(props: {
   );
 }
 
-/**
- * Our app automatically swaps layout directions for RTL, however, we don't want to do this for our calendar
- * @returns
- */
 function ForceLTRRow(props: { children: ReactNode }) {
   const rtl = I18nManager.isRTL;
   return (

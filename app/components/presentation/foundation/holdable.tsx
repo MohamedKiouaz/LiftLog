@@ -3,15 +3,9 @@ import {
   triggerClickHaptic,
   triggerSlowRiseHaptic,
 } from '@/modules/native-crypto/src/ReactNativeHapticsModule';
-import { ReactNode } from 'react';
-import { ViewStyle } from 'react-native';
+import { ReactNode, useRef } from 'react';
+import { Animated, Easing, ViewStyle } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, {
-  AnimatedProps,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
 
 export type HoldableProps = {
   children: ReactNode;
@@ -19,40 +13,41 @@ export type HoldableProps = {
   duration?: number;
   disabled?: boolean;
   style?: ViewStyle;
-} & Pick<AnimatedProps<Animated.View>, 'layout' | 'entering' | 'exiting'>;
+};
+
 export default function Holdable({
   children,
   onLongPress,
   duration = 500,
   style,
-  layout,
   disabled,
-  entering,
-  exiting,
 }: HoldableProps) {
-  const holdingScale = useSharedValue(1);
-  const layoutAnims = {
-    layout: layout!,
-    entering: entering!,
-    exiting: exiting!,
-  };
+  const holdingScale = useRef(new Animated.Value(1)).current;
 
   const handleLongPress = () => {
     onLongPress();
     triggerClickHaptic();
   };
+
   const enterHold = () => {
-    holdingScale.value = withTiming(1.1, {
+    Animated.timing(holdingScale, {
+      toValue: 1.1,
       duration,
-    });
+      easing: Easing.bezier(0.05, 0.84, 0, 1.22),
+      useNativeDriver: true,
+    }).start();
     triggerSlowRiseHaptic();
   };
+
   const exitHold = (triggered: boolean) => {
-    holdingScale.value = withTiming(1, {
+    Animated.timing(holdingScale, {
+      toValue: 1,
       duration,
-    });
+      useNativeDriver: true,
+    }).start();
     if (!triggered) cancelHaptic();
   };
+
   const gesture = disabled
     ? Gesture.Manual()
     : Gesture.LongPress()
@@ -62,15 +57,10 @@ export default function Holdable({
         .onFinalize((_, triggered) => exitHold(triggered))
         .onStart(handleLongPress);
 
-  const scaleStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: holdingScale.value }],
-  }));
   return (
     <GestureDetector gesture={gesture}>
-      <Animated.View {...layoutAnims} style={[style]}>
-        <Animated.View style={[scaleStyle, { flex: 1 }]}>
-          {children}
-        </Animated.View>
+      <Animated.View style={[style, { transform: [{ scale: holdingScale }] }]}>
+        {children}
       </Animated.View>
     </GestureDetector>
   );

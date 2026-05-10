@@ -1,42 +1,33 @@
 import { Appbar } from 'react-native-paper';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import { useScroll } from '@/hooks/useScrollListener';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useAppTheme } from '@/hooks/useAppTheme';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  interpolateColor,
-} from 'react-native-reanimated';
-import { Platform } from 'react-native';
+import { Animated, Platform } from 'react-native';
 
 export default function MaterialStackHeader(props: NativeStackHeaderProps) {
   const { isScrolled } = useScroll();
-  const scrollColor = useSharedValue(0);
+  const scrollColor = useRef(new Animated.Value(0)).current;
   const { colors } = useAppTheme();
 
   useEffect(() => {
-    scrollColor.value = withTiming(isScrolled ? 1 : 0, {
+    Animated.timing(scrollColor, {
+      toValue: isScrolled ? 1 : 0,
       duration: 200,
-    });
+      useNativeDriver: false,
+    }).start();
   }, [isScrolled, scrollColor]);
 
-  const backgroundStyle = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(
-      scrollColor.value,
-      [0, 1],
-      [colors.surface, colors.surfaceContainer],
-    ),
-  }));
+  const backgroundColor = scrollColor.interpolate({
+    inputRange: [0, 1],
+    outputRange: [colors.surface, colors.surfaceContainer],
+  });
 
   return (
-    <Animated.View style={backgroundStyle}>
+    <Animated.View style={{ backgroundColor }}>
       <Appbar.Header
         mode={props.back && Platform.OS !== 'ios' ? 'small' : 'center-aligned'}
-        style={{
-          backgroundColor: 'transparent',
-        }}
+        style={{ backgroundColor: 'transparent' }}
       >
         {props.back ? (
           <Appbar.BackAction onPress={() => props.navigation.goBack()} />

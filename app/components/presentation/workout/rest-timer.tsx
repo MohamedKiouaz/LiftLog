@@ -1,17 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ColorChoice, spacing, useAppTheme } from '@/hooks/useAppTheme';
 import { Rest } from '@/models/blueprint-models';
 import { Duration, OffsetDateTime } from '@js-joda/core';
 import Svg, { Path } from 'react-native-svg';
-import Animated, {
-  useSharedValue,
-  useAnimatedProps,
-  withTiming,
-  useAnimatedStyle,
-  withRepeat,
-  Easing,
-} from 'react-native-reanimated';
-import { View, ViewStyle } from 'react-native';
+import { Animated, Easing, View, ViewStyle } from 'react-native';
 import { SurfaceText } from '@/components/presentation/foundation/surface-text';
 import { impactAsync, ImpactFeedbackStyle } from 'expo-haptics';
 import Holdable from '@/components/presentation/foundation/holdable';
@@ -34,11 +26,11 @@ export default function RestTimer({
   const { colors } = useAppTheme();
   const isSameMinMaxRest = rest.minRest.equals(rest.maxRest);
   const [jiggled, setJiggled] = useState([] as string[]);
+
   useEffect(() => {
     setJiggled([]);
   }, [startTime]);
 
-  // Callback to get all timer-related values
   const getTimerState = useCallback(() => {
     const now = OffsetDateTime.now();
     const diffMs = Duration.between(startTime, now);
@@ -70,62 +62,88 @@ export default function RestTimer({
   }, [startTime, rest, failed, isSameMinMaxRest]);
 
   const [timerState, setTimerState] = useState(getTimerState());
-  const rotation = useSharedValue(0);
 
   const amplitude = 0.1;
-  const animatedStyle = useAnimatedStyle(() => {
-    const angle = amplitude * Math.sin(rotation.value);
-    return {
-      transform: [{ rotateZ: `${angle}rad` }],
-    };
-  });
+  const rotation = useRef(new Animated.Value(0)).current;
 
-  // Set this once, then rotate it with sin
-  const duration = 100;
   const triggerJiggle = useCallback(
     (milestone: string) => {
-      if (jiggled.includes(milestone)) {
-        return;
-      }
+      if (jiggled.includes(milestone)) return;
       impactAsync(ImpactFeedbackStyle.Heavy).catch(console.log);
-      rotation.set(
-        withRepeat(
-          withTiming(2 * Math.PI, {
-            duration,
-            easing: Easing.linear,
-          }),
-          3,
-          false,
-          () => {
-            rotation.set(0); // Reset at end
-          },
-        ),
-      );
+
+      const d = 80;
+      rotation.setValue(0);
+      Animated.sequence([
+        Animated.timing(rotation, {
+          toValue: amplitude,
+          duration: d,
+          useNativeDriver: true,
+          easing: Easing.inOut(Easing.ease),
+        }),
+        Animated.timing(rotation, {
+          toValue: -amplitude,
+          duration: d,
+          useNativeDriver: true,
+          easing: Easing.inOut(Easing.ease),
+        }),
+        Animated.timing(rotation, {
+          toValue: amplitude,
+          duration: d,
+          useNativeDriver: true,
+          easing: Easing.inOut(Easing.ease),
+        }),
+        Animated.timing(rotation, {
+          toValue: -amplitude,
+          duration: d,
+          useNativeDriver: true,
+          easing: Easing.inOut(Easing.ease),
+        }),
+        Animated.timing(rotation, {
+          toValue: amplitude,
+          duration: d,
+          useNativeDriver: true,
+          easing: Easing.inOut(Easing.ease),
+        }),
+        Animated.timing(rotation, {
+          toValue: -amplitude,
+          duration: d,
+          useNativeDriver: true,
+          easing: Easing.inOut(Easing.ease),
+        }),
+        Animated.timing(rotation, {
+          toValue: 0,
+          duration: d,
+          useNativeDriver: true,
+          easing: Easing.inOut(Easing.ease),
+        }),
+      ]).start();
+
       setJiggled((j) => [...j, milestone]);
     },
     [rotation, jiggled],
   );
-  // Animated props for SVG paths
+
   const pillHeight = spacing[14];
   const pillWidth = pillHeight * 2.2;
   const radius = (pillHeight - 6) / 2;
   const straightLength = pillWidth - pillHeight;
   const pillPerimeter = 2 * straightLength + 2 * Math.PI * radius;
 
-  // Timer effect to update all timer-related values every 200ms
   useEffect(() => {
     const timer = setInterval(() => {
       const state = getTimerState();
       setTimerState(state);
-      if (state.firstProgressBarProgress === 1) {
-        triggerJiggle('first');
-      }
-      if (state.secondProgressBarProgress === 1) {
-        triggerJiggle('second');
-      }
+      if (state.firstProgressBarProgress === 1) triggerJiggle('first');
+      if (state.secondProgressBarProgress === 1) triggerJiggle('second');
     }, 200);
     return () => clearInterval(timer);
-  }, [getTimerState, pillPerimeter, triggerJiggle]);
+  }, [getTimerState, triggerJiggle]);
+
+  const rotateZ = rotation.interpolate({
+    inputRange: [-amplitude, amplitude],
+    outputRange: [`${-amplitude}rad`, `${amplitude}rad`],
+    extrapolate: 'clamp',
+  });
 
   return (
     <Holdable
@@ -148,10 +166,9 @@ export default function RestTimer({
             justifyContent: 'center',
           },
           style,
-          animatedStyle,
+          { transform: [{ rotateZ }] },
         ]}
       >
-        {/* Circular progress bar wrapping the border */}
         <View
           style={{
             position: 'absolute',
@@ -164,7 +181,6 @@ export default function RestTimer({
           }}
         >
           <Svg width={pillWidth} height={pillHeight}>
-            {/* Primary progress bar (minRest/failureRest) */}
             <PillProgressBar
               color={colors.primary}
               progress={timerState.firstProgressBarProgress}
@@ -172,7 +188,6 @@ export default function RestTimer({
               pillHeight={pillHeight}
               pillPerimeter={pillPerimeter}
             />
-            {/* Orange progress bar (minRest to maxRest) */}
             <PillProgressBar
               color={colors.orange}
               progress={timerState.secondProgressBarProgress}
@@ -190,7 +205,7 @@ export default function RestTimer({
         <SurfaceText
           style={{ fontVariant: ['tabular-nums'] }}
           font="text-2xl"
-          weight={'bold'}
+          weight="bold"
           color={timerState.textColor}
         >
           {timerState.timeSinceStart}
@@ -200,13 +215,14 @@ export default function RestTimer({
   );
 }
 
-// Function to format time in m:ss format
 function formatTimeSpan(ms: Duration): string {
   const totalSeconds = Math.floor(ms.toMillis() / 1000);
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
+
+const AnimatedPath = Animated.createAnimatedComponent(Path);
 
 interface PillProgressBarProps {
   color: string;
@@ -225,19 +241,18 @@ function PillProgressBar({
   pillPerimeter,
   visible = true,
 }: PillProgressBarProps) {
-  const AnimatedPath = Animated.createAnimatedComponent(Path);
-  const offset = useSharedValue(pillPerimeter);
-  const animatedProps = useAnimatedProps(() => ({
-    strokeDashoffset: offset.value,
-  }));
+  const offset = useRef(new Animated.Value(pillPerimeter)).current;
+
   useEffect(() => {
-    offset.set(
-      withTiming(pillPerimeter * (1 - progress), {
-        duration: 200,
-      }),
-    );
+    Animated.timing(offset, {
+      toValue: pillPerimeter * (1 - progress),
+      duration: 200,
+      useNativeDriver: false,
+    }).start();
   }, [progress, pillPerimeter, offset]);
+
   if (!visible) return null;
+
   return (
     <AnimatedPath
       d={`M${3 + pillHeight / 2 - 3},3
@@ -250,7 +265,7 @@ function PillProgressBar({
       strokeWidth={6}
       fill="none"
       strokeDasharray={pillPerimeter}
-      animatedProps={animatedProps}
+      strokeDashoffset={offset}
     />
   );
 }

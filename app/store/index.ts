@@ -6,7 +6,7 @@ import { applyProgramEffects } from '@/store/program/effects';
 import { applyCurrentSessionEffects } from '@/store/current-session/effects';
 import { applyAppEffects } from '@/store/app/effects';
 import { initializeAppStateSlice } from '@/store/app';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { applySettingsEffects } from '@/store/settings/effects';
 import { applyStoredSessionsEffects } from '@/store/stored-sessions/effects';
 import { applyFeedEffects } from '@/store/feed/effects';
@@ -14,6 +14,7 @@ import { applyStatsEffects } from '@/store/stats/effects';
 import { applyAiPlannerEffects } from '@/store/ai-planner/effects';
 import { clearAllListeners } from '@reduxjs/toolkit';
 import { ExpoSQLiteDatabase } from 'drizzle-orm/expo-sqlite';
+import { useIsFocused } from 'expo-router';
 
 export { RootState, AppDispatch };
 
@@ -44,4 +45,32 @@ export function useAppSelectorWithArg<TArg, TRes>(
     [selector, arg],
   );
   return useAppSelector((s) => memod(s));
+}
+/**
+ * Some components are pretty expensive (for some reason) to render, and when offscreen in a deeper stack or different tab should not cause renders
+ */
+export function useAppSelectorWhenFocused<TRes>(
+  selector: (s: RootState) => TRes,
+): TRes {
+  const isFocused = useIsFocused();
+  const currentValue = useAppSelector(selector);
+  const [focusedValue, setFocusedValue] = useState<TRes>(() => currentValue);
+
+  useEffect(() => {
+    if (isFocused) {
+      setFocusedValue(currentValue);
+    }
+  }, [isFocused, currentValue]);
+
+  return focusedValue;
+}
+export function useAppSelectorWhenFocusedWithArg<TArg, TRes>(
+  selector: (s: RootState, arg: TArg) => TRes,
+  arg: TArg,
+): TRes {
+  const memod = useMemo(
+    () => (s: RootState) => selector(s, arg),
+    [selector, arg],
+  );
+  return useAppSelectorWhenFocused(memod);
 }

@@ -10,7 +10,11 @@ import SessionSummaryTitle from '@/components/presentation/summary/session-summa
 import SplitCardControl from '@/components/presentation/foundation/split-card-control';
 import { spacing } from '@/hooks/useAppTheme';
 import { Session } from '@/models/session-models';
-import { RootState, useAppSelector, useAppSelectorWithArg } from '@/store';
+import {
+  RootState,
+  useAppSelector,
+  useAppSelectorWhenFocusedWithArg,
+} from '@/store';
 import {
   selectCurrentSession,
   setCurrentSession,
@@ -75,7 +79,7 @@ function ListUpcomingWorkouts({
 }) {
   const plan = useAppSelector(selectActiveProgram);
   const { t } = useTranslate();
-  const currentSession = useAppSelectorWithArg(
+  const currentSession = useAppSelectorWhenFocusedWithArg(
     selectCurrentSession,
     'workoutSession',
   );
@@ -98,6 +102,7 @@ function ListUpcomingWorkouts({
       }),
     );
   };
+
   return (
     <View style={{ flex: 1, gap: spacing[2], paddingTop: spacing[4] }}>
       <SessionDiffSaveDialog />

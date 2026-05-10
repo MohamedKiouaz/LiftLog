@@ -1,22 +1,15 @@
 import FullHeightScrollView from '@/components/layout/full-height-scroll-view';
 import { useAppTheme, spacing } from '@/hooks/useAppTheme';
 import { usePreventNavigate } from '@/hooks/usePreventNavigate';
-import { ReactNode, useEffect } from 'react';
-import { View } from 'react-native';
+import { ReactNode, useEffect, useRef, useState } from 'react';
+import { Animated, Easing, View } from 'react-native';
 import { Portal, Text } from 'react-native-paper';
 import Button from '@/components/presentation/foundation/gesture-wrappers/button';
 import IconButton from '@/components/presentation/foundation/gesture-wrappers/icon-button';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  interpolateColor,
-  Easing,
-  FadeInDown,
-  FadeOutDown,
-} from 'react-native-reanimated';
 import { ScrollProvider, useScroll } from '@/hooks/useScrollListener';
+
+const DIALOG_DURATION = 150;
 
 interface FullScreenDialogProps {
   title: string;
@@ -31,59 +24,84 @@ interface FullScreenDialogProps {
 
 export default function FullScreenDialog(props: FullScreenDialogProps) {
   const { action, open, onAction, onClose, title, children } = props;
-
   const { bottom } = useSafeAreaInsets();
   const { colors } = useAppTheme();
 
+  // Keep children mounted during exit animation
+  const [mounted, setMounted] = useState(open);
+  const anim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (open) {
+      setMounted(true);
+      // Reset first so the enter always animates from 0 regardless of prior state
+      anim.setValue(0);
+      Animated.timing(anim, {
+        toValue: 1,
+        duration: DIALOG_DURATION,
+        easing: Easing.inOut(Easing.quad),
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(anim, {
+        toValue: 0,
+        duration: DIALOG_DURATION,
+        easing: Easing.inOut(Easing.quad),
+        useNativeDriver: true,
+      }).start(({ finished }) => {
+        if (finished) setMounted(false);
+      });
+    }
+  }, [open, anim]);
+
   usePreventNavigate(open, onClose);
+
+  if (!mounted) return null;
+
+  const translateY = anim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [20, 0],
+  });
 
   return (
     <Portal>
-      {open ? (
-        <ScrollProvider>
-          <Animated.View
-            entering={FadeInDown.duration(150).easing(
-              Easing.inOut(Easing.quad),
-            )}
-            exiting={FadeOutDown.duration(150).easing(
-              Easing.inOut(Easing.quad),
-            )}
-            testID="fullscreen-dialog"
-            style={{
-              flex: 1,
-            }}
-          >
-            <Header
-              onClose={onClose}
-              action={action}
-              onAction={onAction}
-              title={title}
-            />
-            {props.noScroll ? (
-              <View
-                style={{
-                  flex: 1,
-                  backgroundColor: colors.surface,
-                  paddingHorizontal: spacing.pageHorizontalMargin,
-                }}
-              >
-                {children}
-                <View style={{ height: bottom, width: '100%' }}></View>
-              </View>
-            ) : (
-              <FullHeightScrollView
-                avoidKeyboard={props.avoidKeyboard}
-                scrollStyle={{
-                  padding: spacing.pageHorizontalMargin,
-                }}
-              >
-                {children}
-                <View style={{ height: bottom, width: '100%' }}></View>
-              </FullHeightScrollView>
-            )}
-          </Animated.View>
-        </ScrollProvider>
-      ) : undefined}
+      <ScrollProvider>
+        <Animated.View
+          testID="fullscreen-dialog"
+          style={{
+            flex: 1,
+            opacity: anim,
+            transform: [{ translateY }],
+          }}
+        >
+          <Header
+            onClose={onClose}
+            action={action}
+            onAction={onAction}
+            title={title}
+          />
+          {props.noScroll ? (
+            <View
+              style={{
+                flex: 1,
+                backgroundColor: colors.surface,
+                paddingHorizontal: spacing.pageHorizontalMargin,
+              }}
+            >
+              {children}
+              <View style={{ height: bottom, width: '100%' }} />
+            </View>
+          ) : (
+            <FullHeightScrollView
+              avoidKeyboard={props.avoidKeyboard}
+              scrollStyle={{ padding: spacing.pageHorizontalMargin }}
+            >
+              {children}
+              <View style={{ height: bottom, width: '100%' }} />
+            </FullHeightScrollView>
+          )}
+        </Animated.View>
+      </ScrollProvider>
     </Portal>
   );
 }
@@ -94,29 +112,27 @@ function Header({
   action,
   onAction,
 }: Pick<FullScreenDialogProps, 'action' | 'onAction' | 'onClose' | 'title'>) {
-  const scrollAnimation = useSharedValue(0);
   const { colors } = useAppTheme();
   const { top } = useSafeAreaInsets();
-  const backgroundStyle = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(
-      scrollAnimation.value,
-      [0, 1],
-      [colors.surface, colors.surfaceContainer],
-    ),
-    paddingTop: top,
-  }));
   const { isScrolled } = useScroll();
 
+  const scrollAnim = useRef(new Animated.Value(0)).current;
+
   useEffect(() => {
-    scrollAnimation.set(
-      withTiming(isScrolled ? 1 : 0, {
-        duration: 100,
-      }),
-    );
-  }, [isScrolled, scrollAnimation]);
+    Animated.timing(scrollAnim, {
+      toValue: isScrolled ? 1 : 0,
+      duration: 100,
+      useNativeDriver: false,
+    }).start();
+  }, [isScrolled, scrollAnim]);
+
+  const backgroundColor = scrollAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [colors.surface, colors.surfaceContainer],
+  });
 
   return (
-    <Animated.View style={backgroundStyle}>
+    <Animated.View style={{ backgroundColor, paddingTop: top }}>
       <View
         style={{
           flexDirection: 'row',
@@ -126,12 +142,9 @@ function Header({
           paddingRight: spacing[2],
         }}
       >
-        <IconButton testID="dialog-close" icon={'close'} onPress={onClose} />
+        <IconButton testID="dialog-close" icon="close" onPress={onClose} />
         <Text
-          style={{
-            marginRight: 'auto',
-            flexShrink: 1, //
-          }}
+          style={{ marginRight: 'auto', flexShrink: 1 }}
           variant="headlineSmall"
           numberOfLines={1}
           ellipsizeMode="tail"

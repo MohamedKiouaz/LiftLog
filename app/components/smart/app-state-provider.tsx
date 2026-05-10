@@ -1,8 +1,8 @@
 import { Loader } from '@/components/presentation/foundation/loader';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { useAppSelector } from '@/store';
-import { ReactNode } from 'react';
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import { ReactNode, useRef } from 'react';
+import { Animated } from 'react-native';
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
   const waitingOn = useAppSelector(
@@ -15,19 +15,20 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       getLoadMessage(s.aiPlanner, 'ai planner'),
   );
   const { colors } = useAppTheme();
+  const isWaiting = !!waitingOn;
+  const anim = useRef(new Animated.Value(1)).current;
 
-  if (waitingOn) {
+  if (isWaiting) {
     return (
       <Animated.View
-        entering={FadeIn}
-        exiting={FadeOut}
         style={{
           flex: 1,
           backgroundColor: colors.surface,
           alignItems: 'center',
+          opacity: anim,
         }}
       >
-        <Loader loadingText={waitingOn} />
+        <Loader loadingText={waitingOn ?? ''} />
       </Animated.View>
     );
   }
@@ -36,8 +37,6 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 }
 
 function getLoadMessage(state: { isHydrated: boolean }, type: string) {
-  if (state.isHydrated) {
-    return undefined;
-  }
+  if (state.isHydrated) return undefined;
   return 'Loading ' + type;
 }

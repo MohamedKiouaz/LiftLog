@@ -14,11 +14,7 @@ import { T, TranslationKey, useTranslate } from '@tolgee/react';
 import { localeFormatBigNumber } from '@/utils/locale-bignumber';
 import { useState } from 'react';
 import { Duration, OffsetDateTime } from '@js-joda/core';
-import Reanimated, {
-  FadeIn,
-  FadeOut,
-  LinearTransition,
-} from 'react-native-reanimated';
+
 import { View } from 'react-native';
 import IconButton from '@/components/presentation/foundation/gesture-wrappers/icon-button';
 import { rounding, spacing, useAppTheme } from '@/hooks/useAppTheme';
@@ -166,7 +162,7 @@ function CardioExerciseSet(props: CardioExerciseSetProps) {
   return (
     <View style={{ gap: spacing[4] }}>
       <CardioTargetHandler target={props.set.blueprint.target} />
-      <Reanimated.View
+      <View
         style={{
           flexDirection: 'row',
           flexWrap: 'wrap',
@@ -190,7 +186,7 @@ function CardioExerciseSet(props: CardioExerciseSetProps) {
           updateWeight={props.updateWeight}
           updateSteps={props.updateSteps}
         />
-      </Reanimated.View>
+      </View>
     </View>
   );
 }
@@ -283,34 +279,28 @@ function AddTrackerButtonMenu(props: {
     return undefined;
   }
   return (
-    <Reanimated.View
-      entering={FadeIn}
-      exiting={FadeOut}
-      layout={LinearTransition}
+    <Menu
+      visible={menuOpen}
+      style={{ justifyContent: 'center' }}
+      onDismiss={() => setMenuOpen(false)}
+      anchor={
+        <FocusRing
+          isSelected={toStartNext}
+          padding={0}
+          radius={rounding.roundedRectangleFocusRingRadius}
+        >
+          <IconButton
+            style={{ borderRadius: rounding.roundedRectangleRadius }}
+            testID="add-tracker-button"
+            icon={'plus'}
+            mode="contained"
+            onPress={() => setMenuOpen(true)}
+          />
+        </FocusRing>
+      }
     >
-      <Menu
-        visible={menuOpen}
-        style={{ justifyContent: 'center' }}
-        onDismiss={() => setMenuOpen(false)}
-        anchor={
-          <FocusRing
-            isSelected={toStartNext}
-            padding={0}
-            radius={rounding.roundedRectangleFocusRingRadius}
-          >
-            <IconButton
-              style={{ borderRadius: rounding.roundedRectangleRadius }}
-              testID="add-tracker-button"
-              icon={'plus'}
-              mode="contained"
-              onPress={() => setMenuOpen(true)}
-            />
-          </FocusRing>
-        }
-      >
-        {menuItems}
-      </Menu>
-    </Reanimated.View>
+      {menuItems}
+    </Menu>
   );
 }
 

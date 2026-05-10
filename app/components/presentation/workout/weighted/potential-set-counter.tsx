@@ -1,8 +1,8 @@
 import { PotentialSet } from '@/models/session-models';
 import BigNumber from 'bignumber.js';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Text as PaperText, Chip } from 'react-native-paper';
-import { Text, View } from 'react-native';
+import { Keyboard, Text, View } from 'react-native';
 import WeightFormat from '@/components/presentation/foundation/weight-format';
 import WeightDialog from '@/components/presentation/foundation/editors/weight-dialog';
 import { useAppTheme, spacing, font, rounding } from '@/hooks/useAppTheme';
@@ -32,7 +32,11 @@ export default function PotentialSetCounter(props: PotentialSetCounterProps) {
   const [isWeightDialogOpen, setIsWeightDialogOpen] = useState(false);
   const [isRepsDialogOpen, setIsRepsDialogOpen] = useState(false);
   const repCountValue = props.set?.set?.repsCompleted;
-
+  useEffect(() => {
+    if (!isRepsDialogOpen) {
+      Keyboard.dismiss();
+    }
+  }, [isRepsDialogOpen]);
   const [applyTo, setApplyTo] = useState<WeightAppliesTo>('uncompletedSets');
 
   return (
