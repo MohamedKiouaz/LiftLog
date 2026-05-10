@@ -10,16 +10,17 @@ import { match } from 'ts-pattern';
 import { Dialog, SegmentedButtons } from 'react-native-paper';
 import { Portal } from 'react-native-paper';
 import Button from '@/components/presentation/foundation/gesture-wrappers/button';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 
 type ButtonValues = 'short' | 'medium' | 'long' | 'custom';
 
-interface RestEditorGroupProps {
+interface RestEditorDialogProps {
   rest: Rest;
   onRestUpdated: (rest: Rest) => void;
   dialogOpen: boolean;
   setDialogOpen: (open: boolean) => void;
 }
-export function RestEditorDialog(props: RestEditorGroupProps) {
+export function RestEditorDialog(props: RestEditorDialogProps) {
   const { colors } = useAppTheme();
   const { t } = useTranslate();
 
@@ -75,44 +76,52 @@ export function RestEditorDialog(props: RestEditorGroupProps) {
     );
   return (
     <Portal>
-      <Dialog
-        visible={props.dialogOpen}
-        onDismiss={() => props.setDialogOpen(false)}
+      <KeyboardAvoidingView
+        behavior={'height'}
+        style={{
+          flex: 1,
+          pointerEvents: props.dialogOpen ? 'box-none' : 'none',
+        }}
       >
-        <Dialog.Content>
-          <View style={{ width: '100%' }}>
-            <SegmentedButtons
-              style={{ width: '100%' }}
-              value={buttonValue}
-              onValueChange={(s) => handleValueChange(s as ButtonValues)}
-              buttons={[
-                {
-                  value: 'short',
-                  label: t('rest.short.label'),
-                },
-                {
-                  value: 'medium',
-                  label: t('rest.medium.label'),
-                },
-                {
-                  value: 'long',
-                  label: t('rest.long.label'),
-                },
-                {
-                  value: 'custom',
-                  label: t('generic.custom.label'),
-                },
-              ]}
-            />
-          </View>
-          {customView}
-        </Dialog.Content>
-        <Dialog.Actions>
-          <Button onPress={() => props.setDialogOpen(false)}>
-            {t('generic.close.button')}
-          </Button>
-        </Dialog.Actions>
-      </Dialog>
+        <Dialog
+          visible={props.dialogOpen}
+          onDismiss={() => props.setDialogOpen(false)}
+        >
+          <Dialog.Content>
+            <View style={{ width: '100%' }}>
+              <SegmentedButtons
+                style={{ width: '100%' }}
+                value={buttonValue}
+                onValueChange={(s) => handleValueChange(s as ButtonValues)}
+                buttons={[
+                  {
+                    value: 'short',
+                    label: t('rest.short.label'),
+                  },
+                  {
+                    value: 'medium',
+                    label: t('rest.medium.label'),
+                  },
+                  {
+                    value: 'long',
+                    label: t('rest.long.label'),
+                  },
+                  {
+                    value: 'custom',
+                    label: t('generic.custom.label'),
+                  },
+                ]}
+              />
+            </View>
+            {customView}
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => props.setDialogOpen(false)}>
+              {t('generic.close.button')}
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </KeyboardAvoidingView>
     </Portal>
   );
 }
