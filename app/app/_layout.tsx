@@ -9,6 +9,7 @@ import '@/utils/date-locale';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import * as Sentry from '@sentry/react-native';
 import ServicesProvider from '@/components/smart/services-provider';
+import { PreventNavigateProvider } from '@/hooks/usePreventNavigate';
 
 LogBox.ignoreLogs([
   /.*is not a valid icon name.*/,
@@ -29,30 +30,32 @@ export default Sentry.wrap(function RootLayout() {
 
   return (
     <GestureHandlerRootView>
-      <KeyboardProvider>
-        <SafeAreaProvider>
-          <ServicesProvider>
-            <AppThemeProvider>
-              <AppStateProvider>
-                <SnackbarProvider>
-                  <Stack
-                    screenOptions={{
-                      headerShown: false,
-                      statusBarStyle:
-                        Platform.OS === 'android'
-                          ? colorScheme === 'dark'
-                            ? 'light'
-                            : 'dark'
-                          : undefined,
-                      gestureEnabled: false,
-                    }}
-                  />
-                </SnackbarProvider>
-              </AppStateProvider>
-            </AppThemeProvider>
-          </ServicesProvider>
-        </SafeAreaProvider>
-      </KeyboardProvider>
+      <PreventNavigateProvider>
+        <KeyboardProvider>
+          <SafeAreaProvider>
+            <ServicesProvider>
+              <AppThemeProvider>
+                <AppStateProvider>
+                  <SnackbarProvider>
+                    <Stack
+                      screenOptions={{
+                        headerShown: false,
+                        statusBarStyle:
+                          Platform.OS === 'android'
+                            ? colorScheme === 'dark'
+                              ? 'light'
+                              : 'dark'
+                            : undefined,
+                        gestureEnabled: false,
+                      }}
+                    />
+                  </SnackbarProvider>
+                </AppStateProvider>
+              </AppThemeProvider>
+            </ServicesProvider>
+          </SafeAreaProvider>
+        </KeyboardProvider>
+      </PreventNavigateProvider>
     </GestureHandlerRootView>
   );
 });
