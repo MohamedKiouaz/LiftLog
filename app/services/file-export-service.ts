@@ -1,22 +1,24 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { File, Paths } from 'expo-file-system';
+import { shareAsync } from 'expo-sharing';
+
 export class FileExportService {
   async exportBytes(
     filename: string,
     bytes: Uint8Array,
     contentType: string,
   ): Promise<void> {
-    const blob = new Blob([bytes], { type: contentType });
-    const url = URL.createObjectURL(blob);
-
-    const link = (global as any).document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    (global as any).document.body.appendChild(link);
-    link.click();
-    (global as any).document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    const file = new File(Paths.join(Paths.cache, filename));
+    if (file.exists) {
+      file.delete();
+    }
+    file.create();
+    const stream = file.writableStream();
+    const writer = stream.getWriter();
+    await writer.write(bytes);
+    await writer.close();
+    await shareAsync(file.uri, {
+      dialogTitle: 'Export data',
+      mimeType: contentType,
+    });
   }
 }

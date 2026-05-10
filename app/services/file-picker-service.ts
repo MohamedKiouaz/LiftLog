@@ -1,4 +1,5 @@
 import * as DocumentPicker from 'expo-document-picker';
+import { File } from 'expo-file-system';
 export type PickedFile = {
   bytes: Uint8Array;
   name: string;
@@ -13,13 +14,7 @@ export class FilePickerService {
       return undefined;
     }
     const pickedItem = picked.assets[0];
-    const bytes = await pickedItem.file?.arrayBuffer();
-    if (!bytes) {
-      return undefined;
-    }
-    return {
-      name: pickedItem.name,
-      bytes: new Uint8Array(bytes),
-    };
+    const fileBytes = new File(pickedItem.uri).bytes();
+    return { name: pickedItem.name, bytes: await fileBytes };
   }
 }

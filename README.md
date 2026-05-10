@@ -10,20 +10,19 @@
 <p align="center">
   <a href='https://play.google.com/store/apps/details?id=com.limajuice.liftlog&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' style="height: 50px;" src='./assets/google-play-badge.png'/></a>
   <a href="https://apps.apple.com/au/app/liftlog/id6467372581?itsct=apps_box_badge&amp;itscg=30200"><img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83&amp;releaseDate=1696550400" alt="Download on the App Store" style="border-radius: 13px; width: 250px; height: 50px"></a>
-  <a href='https://app.liftlog.online'><img alt='Try demo in your browser' style="height: 50px;" src='./assets/web-badge.png'/></a>
 </p>
 
 ---
 
 ## 🚀 Overview
 
-**LiftLog** is an intuitive, cross-platform gym weight tracking app built with React Native and Expo. It features Material Design 3, AI-powered workout planning, and secure, end-to-end encrypted social feeds. Available on Android, iOS, and the web.
+**LiftLog** is an intuitive, cross-platform gym weight tracking app built with React Native and Expo. It features Material Design 3, AI-powered workout planning, and secure, end-to-end encrypted social feeds. Available on Android and iOS.
 
 ### Key Features
 
 - 🗿 Intuitive UI which lets you log your progression, without getting in your way
 - Entirely device local workouts, no waiting for sign in or downloads
-- 📱 Runs on Android, iOS, and web
+- 📱 Runs on Android and iOS. Web support was removed in [this commit](https://github.com/LiamMorrow/LiftLog/commit/d77d94e5eeffd3a9a81af6f61f47e9c57fb91738)
 - 🔒 End-to-end encrypted social feeds (opt-in, privacy-first)
 - 🎨 Material Design 3 via React Native Paper
 - 🌐 Internationalization with Tolgee/Weblate (10+ languages)
@@ -61,7 +60,6 @@ cd app
 npm install
 npm run android   # For Android
 npm run ios       # For iOS (macOS only)
-npm run web       # For web
 ```
 
 ### Run the Backend API
@@ -129,7 +127,6 @@ Contributions, issues, and feature requests are welcome! See [CONTRIBUTING.md](.
 
 - [Discord](https://discord.gg/YHhKEnEnFa)
 - [App Website](https://liftlog.online)
-- [Try Demo](https://app.liftlog.online)
 
 ---
 

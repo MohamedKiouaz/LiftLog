@@ -1,62 +1,105 @@
-type Global = {
-  window: Window;
-};
-type Window = {
-  localStorage: LocalStorage;
-};
+import { uuid } from '@/utils/uuid';
+import { File, Paths } from 'expo-file-system';
+import { Platform } from 'react-native';
+import { getLibraryDirectory } from '@/modules/native-crypto';
 
-type LocalStorage = {
-  getItem(key: string): string;
-  removeItem(key: string): void;
-  setItem(key: string, value: string): void;
-};
 export class KeyValueStore {
   async getItem(key: string): Promise<string | undefined> {
-    return (
-      (global as unknown as Global).window.localStorage.getItem(key) ??
-      undefined
-    );
-  }
-
-  getItemSync(key: string): string | undefined {
-    return (
-      (global as unknown as Global).window.localStorage.getItem(key) ??
-      undefined
-    );
+    const file = getFile(key);
+    if (file.exists) {
+      return file.text();
+    }
+    const oldFile = getOldDirFile(key);
+    if (oldFile?.exists) {
+      return oldFile.text();
+    }
+    return undefined;
   }
 
   async getItemBytes(key: string): Promise<Uint8Array | undefined> {
-    let item = (global as unknown as Global).window.localStorage.getItem(key);
-    if (item?.startsWith('"') && item.endsWith('"')) {
-      item = item.slice(1, -1);
+    const file = getFile(key);
+    if (file.exists) {
+      return this.readBytes(file);
     }
-    return item
-      ? Uint8Array.from(atob(item), (char) => char.charCodeAt(0))
-      : undefined;
+    const oldFile = getOldDirFile(key);
+    if (oldFile?.exists) {
+      return this.readBytes(oldFile);
+    }
+    return undefined;
   }
 
   async setItem(key: string, value: string | Uint8Array): Promise<void> {
+    // We do this tempfile business to catch if the app crashes halfway through a write, don't want to corrupt the existing data.
+    // Originally I found that if the value was < the original file length then it kept the old files extra data -corrupting it.
+    // Could just delete it, but this feels like less chance of data loss
+    const tempFile = getFile(key + '-tmp' + uuid());
+    const finalFile = getFile(key);
+    tempFile.create();
+
     if (typeof value === 'string') {
-      (global as unknown as Global).window.localStorage.setItem(key, value);
-    } else {
-      // Convert Uint8Array to base64 without creating a massive stack by spreading into fromCharCode
-      function uint8ToBase64(bytes: Uint8Array): string {
-        let binary = '';
-        const len = bytes.byteLength;
-        for (let i = 0; i < len; i++) {
-          binary += String.fromCharCode(bytes[i]);
-        }
-        return btoa(binary);
+      tempFile.write(value);
+      if (finalFile.exists) {
+        finalFile.delete();
       }
-      const base64Value = uint8ToBase64(value);
-      (global as unknown as Global).window.localStorage.setItem(
-        key,
-        base64Value,
-      );
+      tempFile.move(finalFile);
+      return;
     }
+    const stream = tempFile.writableStream();
+    const writer = stream.getWriter();
+    try {
+      await writer.write(value);
+    } finally {
+      await writer.close();
+    }
+    if (finalFile.exists) {
+      finalFile.delete();
+    }
+    tempFile.move(finalFile);
+  }
+
+  getItemSync(key: string): string | undefined {
+    const file = getFile(key);
+    if (file.exists) {
+      return file.textSync();
+    }
+    const oldFile = getOldDirFile(key);
+    if (oldFile?.exists) {
+      return oldFile.textSync();
+    }
+    return undefined;
   }
 
   async removeItem(key: string): Promise<void> {
-    (global as unknown as Global).window.localStorage.removeItem(key);
+    const file = getFile(key);
+    if (file.exists) {
+      file.delete();
+    }
   }
+
+  private async readBytes(file: File): Promise<Uint8Array> {
+    const readBytes = new Uint8Array(file.size);
+    let offset = 0;
+    // This is probably slower than just using sync file.read, but it won't lock the UI thread...
+    for await (const bytesAny of file.readableStream().values()) {
+      const bytes = bytesAny as Uint8Array;
+      readBytes.set(bytes, offset);
+      offset += bytes.length;
+    }
+    return readBytes;
+  }
+}
+
+function getOldDirFile(key: string): File | undefined {
+  // For iOS, the Library/Application Support directory (equivalent to .NET MAUI's FileSystem.AppDataDirectory)
+  // We want to only read from this, and store in the appropriate documents dir
+  if (Platform.OS === 'ios' || Platform.OS === 'macos') {
+    const libraryDir = getLibraryDirectory();
+    return new File(Paths.join(libraryDir, key));
+  } else {
+    return undefined;
+  }
+}
+
+function getFile(key: string): File {
+  return new File(Paths.join(Paths.document, key));
 }
