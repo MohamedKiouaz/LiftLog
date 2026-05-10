@@ -19,9 +19,10 @@ export class Logger {
     console.debug(message, o);
   }
 
+  time<T>(type: string, action: () => Promise<T>): Promise<T>;
   time(type: string, action: () => Promise<void>): Promise<void>;
   time(type: string, action: () => void): void;
-  time(type: string, action: () => Promise<void> | void) {
+  time<T>(type: string, action: () => Promise<T | void> | void) {
     const start = performance.now();
     const result = action();
     if (typeof result === 'undefined') {
@@ -29,14 +30,15 @@ export class Logger {
         type + ' completed in ' + (performance.now() - start).toFixed(2) + 'ms',
       );
     } else {
-      return result.then(() =>
+      return result.then((x) => {
         this.info(
           type +
             ' completed in ' +
             (performance.now() - start).toFixed(2) +
             'ms',
-        ),
-      );
+        );
+        return x;
+      });
     }
   }
 }

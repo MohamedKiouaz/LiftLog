@@ -68,7 +68,9 @@ export default function SessionMoreMenuComponent(props: {
         <Menu.Item
           onPress={() => {
             setExerciseEditorOpen(true);
-            setEditingExerciseBlueprint(EmptyExerciseBlueprint);
+            setEditingExerciseBlueprint(
+              EmptyExerciseBlueprint.with({ name: 'New Exercise' }),
+            );
             setMenuOpen(false);
           }}
           testID="session-add-exercise"
