@@ -14,13 +14,13 @@ Priorities shift based on what feels fun to work on, community interest, and how
 
 - [x] [**#602**](https://github.com/LiamMorrow/LiftLog/issues/602) - Progressive overload at 0 values still adds weight
 - [x] [**#594**](https://github.com/LiamMorrow/LiftLog/issues/594) - Calendar uses system language instead of app language _(good first issue)_
-- [ ] [**#577**](https://github.com/LiamMorrow/LiftLog/issues/577) - Can't delete last letter when renaming a plan
+- [x] [**#577**](https://github.com/LiamMorrow/LiftLog/issues/577) - Can't delete last letter when renaming a plan
 
 ### Quick Wins
 
-- [ ] [**#400**](https://github.com/LiamMorrow/LiftLog/issues/400) - Type sets/reps directly instead of +/- buttons _(good first issue)_
+- [x] [**#400**](https://github.com/LiamMorrow/LiftLog/issues/400) - Type sets/reps directly instead of +/- buttons _(good first issue)_
 - [x] [**#584**](https://github.com/LiamMorrow/LiftLog/issues/584) - Option to hide undone exercises from history
-- [ ] [**#620**](https://github.com/LiamMorrow/LiftLog/issues/620) - Resistance level tracking (non-weighted machines)
+- [x] [**#620**](https://github.com/LiamMorrow/LiftLog/issues/620) - Resistance level tracking (non-weighted machines)
 
 ---
 
@@ -46,8 +46,8 @@ Priorities shift based on what feels fun to work on, community interest, and how
 
 - [ ] [**#392**](https://github.com/LiamMorrow/LiftLog/issues/392) - Import history from CSV (Stronglifts, etc.)
 - [ ] [**#614**](https://github.com/LiamMorrow/LiftLog/issues/614) - JSON import (wrkout.xyz format)
-- [ ] [**#611**](https://github.com/LiamMorrow/LiftLog/issues/611) - Health Connect integration (Android)
-- [ ] [**#370**](https://github.com/LiamMorrow/LiftLog/issues/370) - Apple Health sync
+- [x] [**#611**](https://github.com/LiamMorrow/LiftLog/issues/611) - Health Connect integration (Android)
+- [x] [**#370**](https://github.com/LiamMorrow/LiftLog/issues/370) - Apple Health sync
 - [ ] [**#533**](https://github.com/LiamMorrow/LiftLog/issues/533) - WebDAV backup _(help wanted)_
 
 ### Advanced Exercise Types
@@ -93,7 +93,6 @@ Priorities shift based on what feels fun to work on, community interest, and how
 
 Looking for contributors! These issues are great starting points:
 
-- [**#400**](https://github.com/LiamMorrow/LiftLog/issues/400) - Add direct input for sets/reps
 - [**#372**](https://github.com/LiamMorrow/LiftLog/issues/372) - Custom AI model dropdown
 - [**#533**](https://github.com/LiamMorrow/LiftLog/issues/533) - WebDAV backup support
 
