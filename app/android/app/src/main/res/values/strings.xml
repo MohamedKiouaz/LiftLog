@@ -1,4 +1,11 @@
 <resources>
   <string name="app_name">LiftLog</string>
   <string name="expo_splash_screen_resize_mode" translatable="false">contain</string>
+  <string name="session_frequency_widget_description">Average sessions per week</string>
+  <string name="session_frequency_widget_label">sessions / week</string>
+  <string name="session_frequency_widget_empty_total">0 sessions in 90 days</string>
+  <plurals name="session_frequency_widget_total">
+    <item quantity="one">%d session in 90 days</item>
+    <item quantity="other">%d sessions in 90 days</item>
+  </plurals>
 </resources>

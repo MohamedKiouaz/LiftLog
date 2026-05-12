@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:id="@+id/session_frequency_widget_root"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:background="@drawable/session_frequency_widget_background"
+  android:gravity="center_vertical"
+  android:orientation="vertical"
+  android:padding="16dp">
+
+  <TextView
+    android:id="@+id/session_frequency_value"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:includeFontPadding="false"
+    android:text="0.0"
+    android:textColor="@color/colorPrimary"
+    android:textSize="34sp"
+    android:textStyle="bold" />
+
+  <TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="2dp"
+    android:includeFontPadding="false"
+    android:text="@string/session_frequency_widget_label"
+    android:textColor="@color/widget_on_surface"
+    android:textSize="13sp" />
+
+  <TextView
+    android:id="@+id/session_frequency_total"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:includeFontPadding="false"
+    android:text="@string/session_frequency_widget_empty_total"
+    android:textColor="@color/widget_on_surface_variant"
+    android:textSize="12sp" />
+</LinearLayout>

@@ -4,4 +4,7 @@
   <color name="colorPrimary">#046F03</color>
   <color name="colorPrimaryDark">#fcfdf6</color>
   <color name="activityBackground">#fcfdf6</color>
+  <color name="widget_surface">#FCFDF6</color>
+  <color name="widget_on_surface">#1A1C18</color>
+  <color name="widget_on_surface_variant">#5D6158</color>
 </resources>

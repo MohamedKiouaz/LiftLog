@@ -3,6 +3,7 @@ import { useAppTheme } from '@/hooks/useAppTheme';
 import { useAppSelector } from '@/store';
 import { ReactNode, useRef } from 'react';
 import { Animated } from 'react-native';
+import { SessionFrequencyWidgetUpdater } from './session-frequency-widget-updater';
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
   const waitingOn = useAppSelector(
@@ -33,7 +34,12 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     );
   }
 
-  return children;
+  return (
+    <>
+      <SessionFrequencyWidgetUpdater />
+      {children}
+    </>
+  );
 }
 
 function getLoadMessage(state: { isHydrated: boolean }, type: string) {

@@ -50,5 +50,12 @@
         <category android:name="android.intent.category.HEALTH_PERMISSIONS"/>
       </intent-filter>
     </activity-alias>
+    <receiver android:name=".SessionFrequencyWidgetProvider" android:exported="true">
+      <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+        <action android:name="com.limajuice.liftlog.action.UPDATE_SESSION_FREQUENCY_WIDGET"/>
+      </intent-filter>
+      <meta-data android:name="android.appwidget.provider" android:resource="@xml/session_frequency_widget_info"/>
+    </receiver>
   </application>
 </manifest>

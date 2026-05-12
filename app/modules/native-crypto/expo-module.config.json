@@ -14,7 +14,8 @@
       "expo.modules.webcrypto.ReactNativeWebcryptoModule",
       "expo.modules.webcrypto.LiftLogHapticsModule",
       "expo.modules.webcrypto.ReactNativeWebcryptoAesModule",
-      "expo.modules.webcrypto.ReactNativeWebcryptoRSASha256Module"
+      "expo.modules.webcrypto.ReactNativeWebcryptoRSASha256Module",
+      "expo.modules.webcrypto.LiftLogWidgetModule"
     ]
   }
 }
