@@ -34,37 +34,39 @@ export function CardioValueSelector(props: {
       <Text style={[styles.bigText, { color: colors.onSecondaryContainer }]}>
         {label}
       </Text>
-      <Portal>
-        <KeyboardAvoidingView
-          behavior={'height'}
-          style={{ flex: 1, pointerEvents: dialogOpen ? 'box-none' : 'none' }}
-        >
-          <Dialog visible={dialogOpen} onDismiss={() => setDialogOpen(false)}>
-            <Dialog.Title>{label}</Dialog.Title>
-            <Dialog.Content
-              style={[
-                { flexDirection: 'row', alignItems: 'center' },
-                props.style,
-              ]}
-            >
-              {children}
-            </Dialog.Content>
-            <Dialog.Actions>
-              <Button onPress={() => setDialogOpen(false)}>
-                <T keyName="generic.cancel.button" />
-              </Button>
-              <Button
-                onPress={() => {
-                  setDialogOpen(false);
-                  onSave();
-                }}
+      {dialogOpen && (
+        <Portal>
+          <KeyboardAvoidingView
+            behavior={'height'}
+            style={{ flex: 1, pointerEvents: dialogOpen ? 'box-none' : 'none' }}
+          >
+            <Dialog visible={dialogOpen} onDismiss={() => setDialogOpen(false)}>
+              <Dialog.Title>{label}</Dialog.Title>
+              <Dialog.Content
+                style={[
+                  { flexDirection: 'row', alignItems: 'center' },
+                  props.style,
+                ]}
               >
-                <T keyName="generic.save.button" />
-              </Button>
-            </Dialog.Actions>
-          </Dialog>
-        </KeyboardAvoidingView>
-      </Portal>
+                {children}
+              </Dialog.Content>
+              <Dialog.Actions>
+                <Button onPress={() => setDialogOpen(false)}>
+                  <T keyName="generic.cancel.button" />
+                </Button>
+                <Button
+                  onPress={() => {
+                    setDialogOpen(false);
+                    onSave();
+                  }}
+                >
+                  <T keyName="generic.save.button" />
+                </Button>
+              </Dialog.Actions>
+            </Dialog>
+          </KeyboardAvoidingView>
+        </Portal>
+      )}
     </CardioTrackerCard>
   );
 }
