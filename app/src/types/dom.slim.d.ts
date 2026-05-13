@@ -15,6 +15,7 @@ and limitations under the License.
 
 /// Basically we NEED some types from dom to compile expo/file-system-next (why?)
 // But I don't want the whole dom package in my intellisense
+/* eslint-disable */
 interface Blob {
   readonly size: number;
   readonly type: string;

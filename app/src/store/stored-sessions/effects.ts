@@ -63,7 +63,7 @@ export function applyStoredSessionsEffects(addEffect: AddEffectFn) {
       });
 
       const { exercises: builtInExerciseList } =
-        await import('../../assets/exercises.json');
+        await import('../../../assets/exercises.json');
       const builtinExercisesAddedInThePast = JSON.parse(
         (await keyValueStore.getItem(addedBuiltInExerciseIdsStorageKey)) ??
           '[]',

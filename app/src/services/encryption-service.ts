@@ -17,8 +17,8 @@ import {
   rsaEncrypt,
   rsaSign,
   rsaVerify,
-} from '@/modules/native-crypto';
-import { sha256Hash } from '@/modules/native-crypto/src/ReactNativeWebcryptoModule';
+} from '~/modules/native-crypto';
+import { sha256Hash } from '~/modules/native-crypto/src/ReactNativeWebcryptoModule';
 
 const SignatureLengthBytes = 256;
 
@@ -117,7 +117,7 @@ export class EncryptionService {
     };
   }
 
-  async sha256(data: Uint8Array<ArrayBuffer>): Promise<Uint8Array> {
+  async sha256(data: Uint8Array<ArrayBufferLike>): Promise<Uint8Array> {
     return await sha256Hash(data);
   }
 

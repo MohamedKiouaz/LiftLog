@@ -92,7 +92,7 @@ import { msDirectionsRun } from '@material-symbols-react-native/outlined-400/msD
 import { msLanguage } from '@material-symbols-react-native/outlined-400/msLanguage';
 import { msUnfoldLess } from '@material-symbols-react-native/outlined-400/msUnfoldLess';
 import { msUnfoldMore } from '@material-symbols-react-native/outlined-400/msUnfoldMore';
-import plusMinus from '../../../assets/math-plus-minus.svg';
+import plusMinus from '../../../../assets/math-plus-minus.svg';
 import { SvgXml } from 'react-native-svg';
 import { msDirectionsRunFill } from '@material-symbols-react-native/outlined-400/msDirectionsRunFill';
 import { msTrailLength } from '@material-symbols-react-native/outlined-400/msTrailLength';

@@ -9,7 +9,8 @@
     "module": "ESNext",
     "noUnusedParameters": false,
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./src/*"],
+      "~/modules/*": ["./modules/*"]
     },
     "types": ["vitest"],
     "exactOptionalPropertyTypes": false
@@ -26,6 +27,7 @@
     "node_modules",
     "**/vitest/dist/**",
     "**/vitest/dist/chunks/**",
-    "vitest.config.ts"
+    "vitest.config.ts",
+    "scripts/**"
   ]
 }

@@ -5,7 +5,7 @@ import {
   toWorkoutMessageDao,
   WorkoutMessage,
 } from '@/models/workout-worker-messages';
-import WorkoutWorkerModule from '@/modules/workout-worker/src/WorkoutWorkerModule';
+import WorkoutWorkerModule from '~/modules/workout-worker/src/WorkoutWorkerModule';
 import { RootState } from '@/store';
 import { finishCurrentWorkout } from '@/store/current-session';
 import { Dispatch } from '@reduxjs/toolkit';

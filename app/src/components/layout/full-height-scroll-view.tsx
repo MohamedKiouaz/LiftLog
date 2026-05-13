@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { View, StyleProp, ViewStyle } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import type { AnimatedScrollViewComponent } from 'react-native-keyboard-controller/lib/typescript/components/ScrollViewWithBottomPadding';
 
 export default function FullHeightScrollView({
   children,
@@ -43,7 +42,7 @@ export default function FullHeightScrollView({
         </ScrollView>
       ) : (
         <KeyboardAwareScrollView
-          ScrollViewComponent={ScrollView as AnimatedScrollViewComponent}
+          ScrollViewComponent={ScrollView}
           onScroll={handleScroll}
           style={[scrollStyle]}
           contentContainerStyle={[contentContainerStyle]}
